@@ -5,6 +5,12 @@ parameter_data_type_registry = {}
 recorder_data_type_registry = {}
 
 
+class PywrPythonModule(PywrDataType):
+    tag = 'PYWR_PY_MODULE'
+
+
+
+
 class PywrParameter(PywrDataType):
     tag = 'PYWR_PARAMETER'
     component = 'parameter'
@@ -17,8 +23,17 @@ class PywrParameter(PywrDataType):
     ]
 
     def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
         # Register the component to
         parameter_data_type_registry[cls.component] = cls
+
+
+class PywrParameterPattern(PywrParameter):
+    tag = 'PYWR_PARAMETER_PATTERN'
+
+
+class PywrParameterPatternReference(PywrParameter):
+    tag = 'PYWR_PARAMETER_PATTERN_REF'
 
 
 class PywrMonthlyProfileParameter(PywrParameter):

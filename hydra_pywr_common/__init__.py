@@ -1,4 +1,4 @@
-from hydra_base.lib.HydraTypes.Types import Descriptor, Scalar, Array, DataTypeMeta
+from hydra_base.lib.HydraTypes.Types import Descriptor, Scalar, Array, DataType
 import logging
 logger = logging.getLogger(__name__)
 
@@ -9,7 +9,7 @@ class PywrDataType(Descriptor):
 
 # Import all types so they are registered with hydra-base
 from .datatypes import PywrParameter, PywrMonthlyProfileParameter, parameter_data_type_registry, \
-    PywrRecorder, recorder_data_type_registry
+    PywrRecorder, recorder_data_type_registry, PywrPythonModule, PywrParameterPattern, PywrParameterPatternReference
 
 
 def data_type_from_component_type(component_category, component_type):
