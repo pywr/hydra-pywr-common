@@ -29,3 +29,16 @@ def data_type_from_component_type(component_category, component_type):
         data_type = fallback_type
     return data_type
 
+
+def data_type_from_parameter_value(value):
+
+    if isinstance(value, (int, float)):
+        data_type = Scalar
+    elif isinstance(value, str):
+        data_type = Descriptor
+    elif isinstance(value, dict):
+        data_type = data_type_from_component_type('parameter', value['type'])
+    else:
+        raise ValueError(f'Could not determine data type from parameter value: {value}')
+
+    return data_type
