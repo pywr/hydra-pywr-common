@@ -31,6 +31,11 @@ class PywrParameterPatternReference(PywrParameter):
     component = None
 
 
+class PywrDataframeParameter(PywrParameter):
+    tag = 'PYWR_DATAFRAME'
+    component = 'dataframeparameter'
+
+
 class PywrMonthlyProfileParameter(PywrParameter):
     tag = 'PYWR_PARAMETER_MONTHLY_PROFILE'
     component = 'monthlyprofileparameter'
