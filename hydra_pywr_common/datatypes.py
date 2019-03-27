@@ -51,10 +51,33 @@ class PywrIndexedArrayParameter(PywrParameter):
     component = 'indexedarrayparameter'
 
 
+class PywrControlCurveInterpolatedParameter(PywrParameter):
+    tag = 'PYWR_PARAMETER_CONTROL_CURVE_INTERPOLATED'
+    component = 'controlcurveinterpolatedparameter'
+
+
 class PywrRecorder(PywrDataType):
     tag = 'PYWR_RECORDER'
     component = 'recorder'
 
     def __init_subclass__(cls, **kwargs):
-        # Register the component to
-        recorder_data_type_registry[cls.component] = cls
+        super().__init_subclass__(**kwargs)
+
+        if cls.component is not None:
+            recorder_data_type_registry[cls.component] = cls
+            recorder_data_type_registry[cls.component.replace('recorder', '')] = cls
+
+
+class PywrFlowDurationCurveRecorder(PywrRecorder):
+    tag = 'PYWR_RECORDER_FDC'
+    component = 'flowdurationcurverecorder'
+
+
+class PywrStorageDurationCurveRecorder(PywrRecorder):
+    tag = 'PYWR_RECORDER_SDC'
+    component = 'storagedurationcurverecorder'
+
+
+class PywrFlowDurationCurveDeviationRecorder(PywrRecorder):
+    tag = 'PYWR_RECORDER_FDC_DEVIATION'
+    component = 'flowdurationcurvedeviationrecorder'

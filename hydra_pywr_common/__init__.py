@@ -8,8 +8,7 @@ class PywrDataType(Descriptor):
 
 
 # Import all types so they are registered with hydra-base
-from .datatypes import PywrParameter, PywrMonthlyProfileParameter, parameter_data_type_registry, \
-    PywrRecorder, recorder_data_type_registry, PywrPythonModule, PywrParameterPattern, PywrParameterPatternReference
+from .datatypes import *
 
 
 def data_type_from_component_type(component_category, component_type):
