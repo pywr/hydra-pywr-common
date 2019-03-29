@@ -9,6 +9,10 @@ class PywrPythonModule(PywrDataType):
     tag = 'PYWR_PY_MODULE'
 
 
+class PywrNodeOutput(PywrDataType):
+    tag = 'PYWR_NODE_OUTPUT'
+
+
 class PywrParameter(PywrDataType):
     tag = 'PYWR_PARAMETER'
     component = 'parameter'
