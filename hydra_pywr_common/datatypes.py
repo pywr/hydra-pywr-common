@@ -60,6 +60,11 @@ class PywrControlCurveInterpolatedParameter(PywrParameter):
     component = 'controlcurveinterpolatedparameter'
 
 
+class PywrAggregatedParameter(PywrParameter):
+    tag = 'PYWR_PARAMETER_AGGREGATED'
+    component = 'aggregatedparameter'
+
+
 class PywrRecorder(PywrDataType):
     tag = 'PYWR_RECORDER'
     component = 'recorder'
