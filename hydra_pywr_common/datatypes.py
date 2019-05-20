@@ -69,6 +69,11 @@ class PywrAggregatedParameter(PywrParameter):
     component = 'aggregatedparameter'
 
 
+class PywrAggregatedParameter(PywrParameter):
+    tag = 'PYWR_PARAMETER_CONSTANT_SCENARIO'
+    component = 'constantscenarioparameter'
+
+
 class PywrRecorder(PywrDataType):
     tag = 'PYWR_RECORDER'
     component = 'recorder'
