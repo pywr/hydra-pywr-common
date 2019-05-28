@@ -65,7 +65,7 @@ class PywrControlCurveIndexParameter(PywrParameter):
 
 class PywrIndexedArrayParameter(PywrParameter):
     tag = 'PYWR_PARAMETER_INDEXED_ARRAY'
-    name = 'Pywr Parameter Intexed Array'
+    name = 'Pywr Parameter Indexed Array'
     component = 'indexedarrayparameter'
 
 
