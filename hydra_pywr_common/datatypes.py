@@ -10,6 +10,11 @@ class PywrScenarios(PywrDataType):
     name = 'Pywr Scenarios'
 
 
+class PywrScenarioCombinations(PywrDataType):
+    tag = 'PYWR_SCENARIO_COMBINATIONS'
+    name = 'Pywr Scenario combinations'
+
+
 class PywrPythonModule(PywrDataType):
     tag = 'PYWR_PY_MODULE'
     name = 'Pywr Python Module'
@@ -85,8 +90,6 @@ class PywrConstantScenarioParameter(PywrParameter):
     tag = 'PYWR_PARAMETER_CONSTANT_SCENARIO'
     name = 'Pywr Parameter Constant Scenario'
     component = 'constantscenarioparameter'
-
-
 
 
 class PywrRecorder(PywrDataType):
