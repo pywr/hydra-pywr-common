@@ -31,6 +31,7 @@ class PywrGeographicPosition(PywrPosition):
     key = "geographic"
 
     def __init__(self, data):
+        super().__init__()
         self.coord = Coord(*data)
 
     @property
@@ -40,3 +41,17 @@ class PywrGeographicPosition(PywrPosition):
     @property
     def long(self):
         return self.coord.x
+
+
+class PywrBathymetry(Fragment):
+    key = "bathymetry"
+
+    def __init__(self, data):
+        super().__init__()
+
+
+class PywrWeather(Fragment):
+    key = "weather"
+
+    def __init__(self, data):
+        super().__init__()

@@ -1,3 +1,2 @@
-from .dataframeparameter import(
-    PywrDataframeParameter
-)
+from .dataframeparameter import PywrDataframeParameter
+from .monthlyprofileparameter import PywrMonthlyProfileParameter
