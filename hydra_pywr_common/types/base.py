@@ -6,12 +6,9 @@ import json
 import numbers
 from abc import ABC, abstractmethod
 
-from .fragments import(
+from .fragments.position import(
     PywrPosition
 )
-
-edge_types = []
-recorder_types = []
 
 
 class PywrEntity():
@@ -60,6 +57,11 @@ class PywrNode(PywrEntity):
             instcls = PywrNode.node_type_map["__custom_node__"]
             return instcls(data)
 
+    """
+    def set_data_reference(name, data):
+        inst = PywrDataReference.ReferenceFactory()
+    """
+
 
 class PywrEdge(PywrEntity):
     def __init_subclass__(cls, **kwargs):
@@ -97,18 +99,20 @@ class PywrDataReference(PywrEntity, ABC):
                     return PywrParameter.ParameterFactory(data)
                 except KeyError:
                     pass
-            else:
-                """ ... it's just a dataframe."""
-                return PywrDataframeReference(name, data)
 
-        if isinstance(data, str):
-            return PywrDescriptorReference(name, data)
+            """ ... it's just a dataframe."""
+            return PywrDataframeReference(name, data)
 
         if isinstance(data, list):
             return PywrArrayReference(name, data)
 
         if isinstance(data, numbers.Number):
             return PywrScalarReference(name, data)
+
+        if isinstance(data, str):
+            return PywrDescriptorReference(name, data)
+
+        # Handle unparseable case
 
     def __init__(self, name):
         self.name = name

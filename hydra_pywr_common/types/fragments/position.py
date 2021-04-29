@@ -1,15 +1,12 @@
 from collections import namedtuple
 
+from .base import Fragment
+
 try:
     """ Py>=3.7 required for default kwargs to namedtuple """
     Coord = namedtuple("Coord", ('x', 'y'), defaults=(0.0, 0.0))
 except TypeError:
     Coord = namedtuple("Coord", ('x', 'y'))
-
-
-class Fragment():
-    """ Base of all Pywr Fragments """
-    pass
 
 
 class PywrPosition(Fragment):
@@ -42,16 +39,3 @@ class PywrGeographicPosition(PywrPosition):
     def long(self):
         return self.coord.x
 
-
-class PywrBathymetry(Fragment):
-    key = "bathymetry"
-
-    def __init__(self, data):
-        super().__init__()
-
-
-class PywrWeather(Fragment):
-    key = "weather"
-
-    def __init__(self, data):
-        super().__init__()

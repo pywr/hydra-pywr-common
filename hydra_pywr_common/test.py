@@ -13,6 +13,10 @@ from hydra_pywr_common.types.parameters import(
     PywrDataframeParameter
 )
 
+from hydra_pywr_common.types.network import(
+    PywrNetwork
+)
+
 from hydra_pywr_common.types import *
 
 def _b():
@@ -65,7 +69,6 @@ if __name__ == "__main__":
     r = PywrNode.NodeFactory([*reservoirs][0])
     _elem(r, "name", "max_volume", "bathymetry", "weather", "position")
 
-
     """
     somenode = { "name": "Bernard",
                  "type": "sentient_carrot",
@@ -79,15 +82,7 @@ if __name__ == "__main__":
     _elem(carrot, "name", "type", "colour", "hasLeaves", "length", "history")
     """
 
+    pnet = PywrNetwork.from_source_file(infile)
 
-    """
-    c = PywrCatchmentNode(cdata)
-    d = PywrDataframeParameter()
-    print(node_types)
-
-    print(type(c))
-    print(c.name)
-    print(c.position)
-    print(c.position.lat, c.position.long)
-    """
-
+    _elem(pnet, "timestepper", "metadata")
+    print(pnet.nodes)

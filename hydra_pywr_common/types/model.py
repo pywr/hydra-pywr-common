@@ -6,9 +6,13 @@ from .base import(
     PywrDataReference
 )
 
-from .fragments import(
+from .fragments.misc import(
     PywrBathymetry,
     PywrWeather
+)
+
+from .fragments.position import(
+    PywrPosition
 )
 
 class PywrCatchmentNode(PywrNode):
@@ -17,13 +21,13 @@ class PywrCatchmentNode(PywrNode):
     def __init__(self, data):
         super().__init__(data)
 
-        self.flow = PywrParameter.ParameterFactory(data["flow"])
+        #self.flow = PywrParameter.ParameterFactory(data["flow"])
 
         #rand_data = data["flow"]    # A dataframeparameter
         #rand_data = "Some text"
-        #rand_data = [ 1,2,3,4,5,6,7,8,9 ]
+        rand_data = [ 1,2,3,4,5,6,7,8,9 ]
         #rand_data = 1.23
-        #self.flow = PywrDataReference.ReferenceFactory("flow", rand_data)
+        self.flow = PywrDataReference.ReferenceFactory("flow", rand_data)
 
 
 class PywrLinkNode(PywrNode):
@@ -39,7 +43,7 @@ class PywrOutputNode(PywrNode):
     def __init__(self, data):
         super().__init__(data)
 
-        self.cost = data["cost"]
+        self.cost = data.get("cost", 0)
 
         # Add max_flow parameter reference
 
@@ -60,13 +64,29 @@ class PywrReservoir(PywrNode):
 class PywrLinearStorageReleaseControlNode(PywrNode):
     key = "linearstoragereleasecontrol"
 
+    def __init__(self, data):
+        super().__init__(data)
+
+        self.release_values = PywrDataReference.ReferenceFactory("release_values", data["release_values"])
+        self.storage_node = PywrDataReference.ReferenceFactory("storage_node", data["storage_node"])
+
+
+class PywrRiverGaugeNode(PywrNode):
+    key = "rivergauge"
+
+    def __init__(self, data):
+        super().__init__(data)
+
+        self.cost = PywrDataReference.ReferenceFactory("cost", data["cost"])
+
 
 class PywrCustomNode(PywrNode):
     key = "__custom_node__"
 
     def __init__(self, data):
         super().__init__(data)
-        print(data)
+        #print(data)
+        self.intrinsic_attrs = []
         self.parse_data(data)
 
     def parse_data(self, data):
@@ -76,3 +96,4 @@ class PywrCustomNode(PywrNode):
 
             typed_attr = PywrDataReference.ReferenceFactory(attr, value)
             setattr(self, attr, typed_attr)
+            self.intrinsic_attrs.append(attr)
