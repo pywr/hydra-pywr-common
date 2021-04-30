@@ -3,6 +3,7 @@ Base types for model types
 """
 
 import json
+import re
 import numbers
 from abc import ABC, abstractmethod
 
@@ -57,6 +58,15 @@ class PywrNode(PywrEntity):
             instcls = PywrNode.node_type_map["__custom_node__"]
             return instcls(data)
 
+    @property
+    def has_unresolved_parameter_reference(self):
+        refs = filter(lambda a: isinstance(a, PywrParameterReference), self.__dict__.values())
+        return any(refs)
+
+    @property
+    def unresolved_parameter_references(self):
+        return [*filter(lambda i: isinstance(i[1], PywrParameterReference), self.__dict__.items())]
+
     """
     def set_data_reference(name, data):
         inst = PywrDataReference.ReferenceFactory()
@@ -76,10 +86,22 @@ class PywrParameter(PywrEntity, HydraDataset):
         PywrParameter.parameter_type_map[cls.key] = cls
 
     @staticmethod
-    def ParameterFactory(data):
-        instkey = data["type"]
+    def ParameterFactory(arg): # (name, data) from params.items()
+        instkey = arg[1]["type"]
         instcls = PywrParameter.parameter_type_map[instkey]
-        return instcls(data)
+        return instcls(*arg)
+
+    def __init__(self, name):
+        self.name = name
+
+    @staticmethod
+    def parse_parameter_key(key, strtok=':'):
+        name, attr = key.split(strtok)
+        name_pattern = r"^__[a-zA-Z0-9_ ]+__$"
+        if not re.search(name_pattern, name):
+            raise ValueError(f"Invalid parameter reference {name}")
+
+        return name.strip('_'), attr
 
 
 class PywrRecorder(PywrEntity):
@@ -110,6 +132,16 @@ class PywrDataReference(PywrEntity, ABC):
             return PywrScalarReference(name, data)
 
         if isinstance(data, str):
+            """ Could be either...
+                    - A reference to a __node__:attr param key
+                    - A plain descriptor
+            """
+            try:
+                elem_name, attr = PywrParameter.parse_parameter_key(data)
+                return PywrParameterReference(data)
+            except ValueError as e:
+                pass
+            """ ... it's just a descriptor """
             return PywrDescriptorReference(name, data)
 
         # Handle unparseable case
@@ -169,6 +201,15 @@ class PywrDataframeReference(PywrDataReference):
     def __init__(self, name, data):
         super().__init__(name)
         self._value = data
+
+    @property
+    def value(self):
+        return self._value
+
+class PywrParameterReference(PywrDataReference):
+    def __init__(self, name):
+        super().__init__(name)
+        self._value = name
 
     @property
     def value(self):

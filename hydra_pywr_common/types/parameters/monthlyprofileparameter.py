@@ -6,8 +6,9 @@ from hydra_pywr_common.lib.utils import(
 class PywrMonthlyProfileParameter(PywrParameter):
     key = "monthlyprofile"
 
-    def __init__(self, argdata, **kwargs):
-        self.set_value(argdata)
+    def __init__(self, name, data, **kwargs):
+        super().__init__(name)
+        self.set_value(data)
         """
         key, data = argdata
         name, attr = parse_parameter_key(key)

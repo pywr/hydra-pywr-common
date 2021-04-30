@@ -61,7 +61,7 @@ if __name__ == "__main__":
     mppdata = [*src["parameters"].items()][0]  # monthlyprofile
 
     print(mppdata)
-    mpp = PywrParameter.ParameterFactory(mppdata[1])    # NB Pass data only
+    mpp = PywrParameter.ParameterFactory(mppdata)    # NB Pass data only
     _elem(mpp, "value")
 
     reservoirs = filter(lambda i: i["type"] == "reservoir", src["nodes"])
@@ -85,4 +85,15 @@ if __name__ == "__main__":
     pnet = PywrNetwork.from_source_file(infile)
 
     _elem(pnet, "timestepper", "metadata")
-    print(pnet.nodes)
+    #print(pnet.nodes)
+    #print(pnet.parameters)
+
+    output_nodes = filter(lambda n: n.key == "output", pnet.nodes.values())
+    delta_cotton = [*output_nodes][0]
+    _elem(delta_cotton, "name", "cost", "max_flow", "max_flow.value")
+    print(pnet.parameters.keys())
+    print(delta_cotton.__dict__)
+    print(type(delta_cotton.max_flow))
+    print(delta_cotton.max_flow.name)
+    print(delta_cotton.has_unresolved_parameter_reference)
+    print(delta_cotton.unresolved_parameter_references)
