@@ -1,8 +1,16 @@
-import json
-
 from hydra_pywr_common.types.base import(
     PywrNode,
-    PywrParameter
+    PywrParameter,
+    PywrRecorder,
+    PywrEdge
+)
+
+from hydra_pywr_common.lib.utils import(
+    parse_reference_key
+)
+
+from hydra_pywr_common.lib.readers import(
+    PywrJsonReader
 )
 
 from .fragments.network import(
@@ -11,61 +19,29 @@ from .fragments.network import(
 )
 
 
-class PywrJsonReader():
-    pass
-
 class PywrNetwork():
 
-    def __init__(self, jsonsrc=None, hydra_network=None):
-        self.src = jsonsrc
-        self.nodes = None
-        self.edges = None
-        self.parameters = None
-        self.recorders = None
+    def __init__(self, reader):
+        self.timestepper = reader.timestepper
+        self.metadata = reader.metadata
+        self.nodes = reader.nodes
+        self.edges = reader.edges
+        self.parameters = reader.parameters
+        self.recorders = reader.recorders
+
+        self.resolve_parameter_references()
+        self.resolve_recorder_references()
 
 
     @classmethod
     def from_source_file(cls, infile):
-        with open(infile, 'r') as fp:
-            src = json.load(fp)
-
-        return cls(jsonsrc=src).build_network_from_json()
+        reader = PywrJsonReader(infile)
+        return cls(reader)
 
 
     @classmethod
     def from_hydra_network(cls, hydra_net):
         pass
-
-
-    def build_network_from_json(self):
-        self.timestepper = Timestepper(self.src["timestepper"])
-        self.metadata = Metadata(self.src["metadata"])
-
-        self.parameters = self.build_parameters()
-        self.nodes = self.build_nodes()
-        self.resolve_parameter_references()
-
-        return self
-
-
-    def build_nodes(self):
-        nodes = {}
-        for node in self.src["nodes"]:
-            n = PywrNode.NodeFactory(node)
-            nodes[n.name] = n
-
-        return nodes
-
-
-    def build_parameters(self):
-        parameters = {}
-        src_params = self.src.get("parameters")
-        if src_params:
-            for param in src_params.items():
-                p = PywrParameter.ParameterFactory(param)
-                parameters[p.name] = p
-
-        return parameters
 
 
     def resolve_parameter_references(self):
@@ -78,3 +54,14 @@ class PywrNetwork():
                     # No such param
                     raise
                 setattr(node, attrname, param)
+
+
+    def resolve_recorder_references(self):
+        for noderef, rec in self.recorders.items():
+            nodename, attrname = parse_reference_key(noderef)
+            try:
+                node = self.nodes[nodename]
+            except KeyError as e:
+                # No such node
+                raise
+            setattr(node, attrname, rec)

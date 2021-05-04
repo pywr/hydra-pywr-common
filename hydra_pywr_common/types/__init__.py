@@ -2,5 +2,6 @@ from .base import(
     PywrNode,
     PywrEdge,
     PywrParameter,
-    PywrRecorder
+    PywrRecorder,
+    PywrDataReference
 )

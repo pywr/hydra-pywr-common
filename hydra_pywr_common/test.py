@@ -13,6 +13,10 @@ from hydra_pywr_common.types.parameters import(
     PywrDataframeParameter
 )
 
+from hydra_pywr_common.types.recorders import(
+    PywrFlowDurationCurveRecorder
+)
+
 from hydra_pywr_common.types.network import(
     PywrNetwork
 )
@@ -92,8 +96,11 @@ if __name__ == "__main__":
     delta_cotton = [*output_nodes][0]
     _elem(delta_cotton, "name", "cost", "max_flow", "max_flow.value")
     print(pnet.parameters.keys())
-    print(delta_cotton.__dict__)
     print(type(delta_cotton.max_flow))
+    print(delta_cotton.__dict__)
     print(delta_cotton.max_flow.name)
     print(delta_cotton.has_unresolved_parameter_reference)
     print(delta_cotton.unresolved_parameter_references)
+
+    print(pnet.recorders)
+    #print(pnet.edges)

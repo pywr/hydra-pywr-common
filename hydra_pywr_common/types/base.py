@@ -3,9 +3,12 @@ Base types for model types
 """
 
 import json
-import re
 import numbers
 from abc import ABC, abstractmethod
+
+from lib.utils import(
+    parse_reference_key
+)
 
 from .fragments.position import(
     PywrPosition
@@ -78,6 +81,12 @@ class PywrEdge(PywrEntity):
         super().__init_subclass__(**kwargs)
         edge_types.append(cls)
 
+    def __init__(self, data):
+        super().__init__()
+        self.src = data[0]
+        self.dest = data[1]
+        self.name = f"{self.src} to {self.dest}"
+
 
 class PywrParameter(PywrEntity, HydraDataset):
     parameter_type_map = {}
@@ -94,20 +103,23 @@ class PywrParameter(PywrEntity, HydraDataset):
     def __init__(self, name):
         self.name = name
 
-    @staticmethod
-    def parse_parameter_key(key, strtok=':'):
-        name, attr = key.split(strtok)
-        name_pattern = r"^__[a-zA-Z0-9_ ]+__$"
-        if not re.search(name_pattern, name):
-            raise ValueError(f"Invalid parameter reference {name}")
-
-        return name.strip('_'), attr
 
 
 class PywrRecorder(PywrEntity):
+    recorder_type_map = {}
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        recorder_types.append(cls)
+        PywrRecorder.recorder_type_map[cls.key] = cls
+        print(f"Registered {cls.key}")
+
+    def __init__(self, name):
+        self.name = name
+
+    @staticmethod
+    def RecorderFactory(arg): # (name, data)
+        instkey = arg[1]["type"]
+        instcls = PywrRecorder.recorder_type_map[instkey]
+        return instcls(*arg)
 
 
 class PywrDataReference(PywrEntity, ABC):
@@ -137,7 +149,7 @@ class PywrDataReference(PywrEntity, ABC):
                     - A plain descriptor
             """
             try:
-                elem_name, attr = PywrParameter.parse_parameter_key(data)
+                elem_name, attr = parse_reference_key(data)
                 return PywrParameterReference(data)
             except ValueError as e:
                 pass
