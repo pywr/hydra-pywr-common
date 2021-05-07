@@ -6,7 +6,7 @@ import json
 import numbers
 from abc import ABC, abstractmethod
 
-from lib.utils import(
+from hydra_pywr_common.lib.utils import(
     parse_reference_key
 )
 
@@ -50,6 +50,8 @@ class PywrNode(PywrEntity):
         location = data.get("position")
         self.position = PywrPosition.PywrPositionFactory(location) if location else None
         self.comment = data.get("comment")
+        self.intrinsic_attrs = []
+        self.parse_data(data)
 
     @staticmethod
     def NodeFactory(data):
@@ -61,6 +63,15 @@ class PywrNode(PywrEntity):
             instcls = PywrNode.node_type_map["__custom_node__"]
             return instcls(data)
 
+    def parse_data(self, data):
+        for attrname, value in data.items():
+            if attrname in PywrNode.base_attrs:
+                continue
+
+            typed_attr = PywrDataReference.ReferenceFactory(attrname, value)
+            setattr(self, attrname, typed_attr)
+            self.intrinsic_attrs.append(attrname)
+
     @property
     def has_unresolved_parameter_reference(self):
         refs = filter(lambda a: isinstance(a, PywrParameterReference), self.__dict__.values())
@@ -70,10 +81,15 @@ class PywrNode(PywrEntity):
     def unresolved_parameter_references(self):
         return [*filter(lambda i: isinstance(i[1], PywrParameterReference), self.__dict__.items())]
 
-    """
-    def set_data_reference(name, data):
-        inst = PywrDataReference.ReferenceFactory()
-    """
+    @property
+    def parameters(self):
+        param_insts = filter(lambda a: isinstance(a, PywrParameter), self.__dict__.values())
+        return {f"__{self.name}__:{inst.name}": inst for inst in param_insts}
+
+    @property
+    def recorders(self):
+        rec_insts = filter(lambda a: isinstance(a, PywrRecorder), self.__dict__.values())
+        return {f"__{self.name}__:{inst.name}": inst for inst in rec_insts}
 
 
 class PywrEdge(PywrEntity):
@@ -110,7 +126,6 @@ class PywrRecorder(PywrEntity):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         PywrRecorder.recorder_type_map[cls.key] = cls
-        print(f"Registered {cls.key}")
 
     def __init__(self, name):
         self.name = name
@@ -126,13 +141,16 @@ class PywrDataReference(PywrEntity, ABC):
 
     @staticmethod
     def ReferenceFactory(name, data):
+        #print(f"ReferenceFactory {name} {type(data)}")
+        #print(data)
         if isinstance(data, dict):
             if data.get("type"):
                 """ It looks like a Parameter, try to construct it as one... """
                 try:
-                    return PywrParameter.ParameterFactory(data)
+                    return PywrParameter.ParameterFactory((name, data)) # NB tuple
                 except KeyError:
-                    pass
+                    """ ...no match as param. maybe recorder?... """
+                    return PywrRecorder.RecorderFactory((name, data))
 
             """ ... it's just a dataframe."""
             return PywrDataframeReference(name, data)
@@ -219,6 +237,15 @@ class PywrDataframeReference(PywrDataReference):
         return self._value
 
 class PywrParameterReference(PywrDataReference):
+    def __init__(self, name):
+        super().__init__(name)
+        self._value = name
+
+    @property
+    def value(self):
+        return self._value
+
+class PywrRecorderReference(PywrDataReference):
     def __init__(self, name):
         super().__init__(name)
         self._value = name

@@ -75,4 +75,10 @@ class PywrJsonReader():
 
 
 class PywrHydraReader():
-    pass
+    def __init__(self, hydra_net):
+        self.metadata = None
+        self.timestepper = None
+        self.parameters = {}
+        self.recorders = {}
+        self.nodes = {}
+        self.edges = {}

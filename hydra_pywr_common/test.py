@@ -2,10 +2,7 @@ import json
 
 from hydra_pywr_common.types.model import(
     PywrNode,
-    PywrParameter
-)
-
-from hydra_pywr_common.types.model import(
+    PywrParameter,
     PywrCatchmentNode
 )
 
@@ -21,7 +18,7 @@ from hydra_pywr_common.types.network import(
     PywrNetwork
 )
 
-from hydra_pywr_common.types import *
+#from hydra_pywr_common.types import *
 
 def _b():
     print('='*16)
@@ -39,17 +36,21 @@ def _elem(elem, *attrs):
     _b()
 
 if __name__ == "__main__":
-    infile = "/home/paul/data/pywr/Tana.newparam.max_flow_series_with_catchment.json"
+    #infile = "/home/paul/data/pywr/Tana.newparam.max_flow_series_with_catchment.json"
+    infile = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.json"
 
+    """
     with open(infile, 'r') as fp:
         src = json.load(fp)
 
     _b()
     ndata = src["nodes"][0] # catchment
 
+    print(ndata)
     n = PywrNode.NodeFactory(ndata)
 
     _elem(n, "name", "flow", "flow.value", "position")
+    #exit(55)
     #print(n.flow.dataset)
 
     ldata = src["nodes"][-1]    # link
@@ -73,7 +74,6 @@ if __name__ == "__main__":
     r = PywrNode.NodeFactory([*reservoirs][0])
     _elem(r, "name", "max_volume", "bathymetry", "weather", "position")
 
-    """
     somenode = { "name": "Bernard",
                  "type": "sentient_carrot",
                  "colour": "orange",
@@ -103,4 +103,14 @@ if __name__ == "__main__":
     print(delta_cotton.unresolved_parameter_references)
 
     print(pnet.recorders)
-    #print(pnet.edges)
+    print(pnet.edges)
+    print(pnet.timestepper.start, pnet.timestepper.end, pnet.timestepper.timestep)
+    _b()
+    """
+    hydra_json = "/mnt/xfr/Tana_river_basin_catchment_04-1.2021-05-04.16-07-51.json"
+
+    with open(hydra_json, 'r') as fp:
+        hydra_src = json.load(fp)
+
+    hnet = PywrNetwork.from_hydra_network(hydra_src)
+    """

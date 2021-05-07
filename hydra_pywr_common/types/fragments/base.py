@@ -1,5 +1,6 @@
 
 class Fragment():
     """ Base of all Pywr Fragments """
-    pass
+    def __init__(self):
+        pass
 

@@ -10,7 +10,8 @@ from hydra_pywr_common.lib.utils import(
 )
 
 from hydra_pywr_common.lib.readers import(
-    PywrJsonReader
+    PywrJsonReader,
+    PywrHydraReader
 )
 
 from .fragments.network import(
@@ -41,7 +42,8 @@ class PywrNetwork():
 
     @classmethod
     def from_hydra_network(cls, hydra_net):
-        pass
+        reader = PywrHydraReader(hydra_net)
+        return cls(reader)
 
 
     def resolve_parameter_references(self):

@@ -18,22 +18,30 @@ class Timestepper(Fragment):
         self._end = PywrDataReference.ReferenceFactory("end", data["end"])
         self._timestep = PywrDataReference.ReferenceFactory("timestep", data["timestep"])
 
-        @property
-        def start(self):
-            return self._start
+    @property
+    def start(self):
+        return self._start.value
 
-        @property
-        def end(self):
-            return self._end
+    @property
+    def end(self):
+        return self._end.value
 
-        @property
-        def timestep(self):
-            return self._timestep
+    @property
+    def timestep(self):
+        return self._timestep.value
 
 
 class Metadata(Fragment):
     def __init__(self, data):
         super().__init__()
 
-        self.title = PywrDataReference.ReferenceFactory("title", data["title"])
-        self.description = PywrDataReference.ReferenceFactory("description", data["description"]) if data.get("description") else ""
+        self._title = PywrDataReference.ReferenceFactory("title", data["title"])
+        self._description = PywrDataReference.ReferenceFactory("description", data.get("description", ""))
+
+    @property
+    def title(self):
+        return self._title.value
+
+    @property
+    def description(self):
+        return self._description.value
