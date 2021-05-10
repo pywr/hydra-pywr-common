@@ -1,3 +1,5 @@
+import json
+
 from hydra_pywr_common.types.base import(
     PywrDataReference
 )
@@ -28,7 +30,7 @@ class Timestepper(Fragment):
 
     @property
     def timestep(self):
-        return self._timestep.value
+        return json.loads(self._timestep.value)
 
 
 class Metadata(Fragment):

@@ -91,6 +91,33 @@ class PywrNode(PywrEntity):
         rec_insts = filter(lambda a: isinstance(a, PywrRecorder), self.__dict__.values())
         return {f"__{self.name}__:{inst.name}": inst for inst in rec_insts}
 
+    @property
+    def pywr_node(self):
+        node = { "name": self.name,
+                 "comment": self.comment
+               }
+
+        if self.position is not None:
+                 node .update({"position": self.position.value})
+
+
+        intrinsics = { name: attr.value for name, attr in self.__dict__.items() if name in self.intrinsic_attrs and not isinstance(getattr(self, name), PywrParameter) }
+        param_refs = {}
+        for param_attr in self.parameters.keys():
+            node_name, attr_name = parse_reference_key(param_attr)
+            param_refs[attr_name] = param_attr
+
+        node.update(intrinsics)
+        node.update(param_refs)
+
+        return node
+
+    @property
+    def pywr_json(self):
+        return json.dumps(self.pywr_node)
+
+
+
 
 class PywrEdge(PywrEntity):
     def __init_subclass__(cls, **kwargs):
@@ -148,6 +175,7 @@ class PywrDataReference(PywrEntity, ABC):
                 """ It looks like a Parameter, try to construct it as one... """
                 try:
                     return PywrParameter.ParameterFactory((name, data)) # NB tuple
+                    #return PywrParameterReference(data)
                 except KeyError:
                     """ ...no match as param. maybe recorder?... """
                     return PywrRecorder.RecorderFactory((name, data))

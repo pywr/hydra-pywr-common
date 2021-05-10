@@ -18,6 +18,12 @@ class PywrMonthlyProfileParameter(PywrParameter):
 
 
     def set_value(self, data):
-        self.value = data["values"]
+        self._value = data["values"]
+
+    @property
+    def value(self):
+        return { "type": self.key,
+                 "values": self._value
+               }
 
 

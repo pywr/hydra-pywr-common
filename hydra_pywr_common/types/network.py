@@ -30,8 +30,8 @@ class PywrNetwork():
         self.parameters = reader.parameters
         self.recorders = reader.recorders
 
-        self.resolve_parameter_references()
-        self.resolve_recorder_references()
+        #self.resolve_parameter_references()
+        #self.resolve_recorder_references()
 
 
     @classmethod

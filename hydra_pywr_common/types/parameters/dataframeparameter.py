@@ -12,11 +12,23 @@ class PywrDataframeParameter(PywrParameter):
 
         data = argdata[basekey][datakey]
         self.set_value(data)
-        #self.name = basekey
+
+        self.pandas_kwargs = argdata.get("pandas_kwargs", {})
 
 
     def set_value(self, data):
-        self.value = pd.DataFrame.from_dict(data, orient="index")
+        #self._value = pd.DataFrame.from_dict(data, orient="index")
+        self._value = data
 
+    @property
+    def value(self):
+        """
+        if hasattr(self, "_value"):
+            return self._value.to_json()
+        """
+        print(self._value)
+        return { "type": self.key,
+                 "data": { self.name: self._value},
+                 "pandas_kwargs": self.pandas_kwargs
+               }
 
-    # TODO pandas kwargs

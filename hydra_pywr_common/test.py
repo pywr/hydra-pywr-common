@@ -36,8 +36,8 @@ def _elem(elem, *attrs):
     _b()
 
 if __name__ == "__main__":
-    #infile = "/home/paul/data/pywr/Tana.newparam.max_flow_series_with_catchment.json"
-    infile = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.json"
+    infile = "/home/paul/data/pywr/Tana.newparam.max_flow_series_with_catchment.json"
+    #infile = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.json"
 
     """
     with open(infile, 'r') as fp:
@@ -102,10 +102,32 @@ if __name__ == "__main__":
     print(delta_cotton.has_unresolved_parameter_reference)
     print(delta_cotton.unresolved_parameter_references)
 
-    print(pnet.recorders)
-    print(pnet.edges)
-    print(pnet.timestepper.start, pnet.timestepper.end, pnet.timestepper.timestep)
+    #print(pnet.recorders)
+    #print(pnet.edges)
+    #print(pnet.timestepper.start, pnet.timestepper.end, pnet.timestepper.timestep)
     _b()
+    for attrname, attr in delta_cotton.__dict__.items():
+        print(f"{attrname} => {attr}")
+    print(delta_cotton.max_flow.name)
+    print(delta_cotton.max_flow.value)
+    print(delta_cotton.pywr_json)
+    _b()
+    node = [*pnet.nodes.values()][0]
+    print(node.name)
+    print(node.pywr_node)
+    print(node.__dict__)
+    #print(node.pywr_json)
+    exit(55)
+    _b()
+    print(node.flow.__dict__)
+    print(node.parameters)
+    _b()
+    """
+    for node in pnet.nodes.values():
+        print(node.name)
+        print(node.pywr_json)
+        _b()
+    """
     """
     hydra_json = "/mnt/xfr/Tana_river_basin_catchment_04-1.2021-05-04.16-07-51.json"
 

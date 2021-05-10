@@ -3,7 +3,8 @@ from .base import(
     PywrEdge,
     PywrParameter,
     PywrRecorder,
-    PywrDataReference
+    PywrDataReference,
+    PywrParameterReference
 )
 
 from .fragments.misc import(
@@ -27,7 +28,8 @@ class PywrCatchmentNode(PywrNode):
         #rand_data = "Some text"
         #rand_data = [ 1,2,3,4,5,6,7,8,9 ]
         #rand_data = 1.23
-        self.flow = PywrDataReference.ReferenceFactory("flow", data["flow"])
+        #self.flow = PywrDataReference.ReferenceFactory("flow", data["flow"])
+        #self.flow = PywrParameterReference(data["flow"])
 
 
 class PywrLinkNode(PywrNode):
@@ -43,11 +45,11 @@ class PywrOutputNode(PywrNode):
     def __init__(self, data):
         super().__init__(data)
 
-        self.cost = data.get("cost", 0)
+        #self.cost = data.get("cost", 0)
 
         # Add max_flow parameter reference
-        max_flow = data.get("max_flow")
-        self.max_flow = PywrDataReference.ReferenceFactory("max_flow", max_flow) if max_flow else 0
+        #max_flow = data.get("max_flow")
+        #self.max_flow = PywrDataReference.ReferenceFactory("max_flow", max_flow) if max_flow else 0
 
 
 """
