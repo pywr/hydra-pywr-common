@@ -49,7 +49,7 @@ class PywrNode(PywrEntity):
         self.name = data["name"]
         location = data.get("position")
         self.position = PywrPosition.PywrPositionFactory(location) if location else None
-        self.comment = data.get("comment")
+        self.comment = data.get("comment", "")
         self.intrinsic_attrs = []
         self.parse_data(data)
 
@@ -98,8 +98,7 @@ class PywrNode(PywrEntity):
                }
 
         if self.position is not None:
-                 node .update({"position": self.position.value})
-
+             node.update({"position": self.position.value})
 
         intrinsics = { name: attr.value for name, attr in self.__dict__.items() if name in self.intrinsic_attrs and not isinstance(getattr(self, name), PywrParameter) }
         param_refs = {}
@@ -130,17 +129,21 @@ class PywrEdge(PywrEntity):
         self.dest = data[1]
         self.name = f"{self.src} to {self.dest}"
 
+    @property
+    def value(self):
+        return [ self.src, self.dest ]
+
 
 class PywrParameter(PywrEntity, HydraDataset):
     parameter_type_map = {}
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        PywrParameter.parameter_type_map[cls.key] = cls
+        PywrParameter.parameter_type_map[cls.key.lower()] = cls
 
     @staticmethod
     def ParameterFactory(arg): # (name, data) from params.items()
         instkey = arg[1]["type"]
-        instcls = PywrParameter.parameter_type_map[instkey]
+        instcls = PywrParameter.parameter_type_map[instkey.lower()]
         return instcls(*arg)
 
     def __init__(self, name):
@@ -203,6 +206,7 @@ class PywrDataReference(PywrEntity, ABC):
             return PywrDescriptorReference(name, data)
 
         # Handle unparseable case
+        return PywrDescriptorReference(name, "")
 
     def __init__(self, name):
         self.name = name

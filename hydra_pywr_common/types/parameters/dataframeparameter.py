@@ -7,13 +7,13 @@ class PywrDataframeParameter(PywrParameter):
 
     def __init__(self, name, argdata, **kwargs):
         super().__init__(name)
-        basekey = next(iter(argdata))
-        datakey = next(iter(argdata[basekey]))
 
-        data = argdata[basekey][datakey]
-        self.set_value(data)
-
+        data = argdata.get("data")
+        basekey = next(iter(data))  # The first key in data dict
+        series = data[basekey]
+        self.set_value(series)
         self.pandas_kwargs = argdata.get("pandas_kwargs", {})
+        #print(f"{basekey=} {name=}")
 
 
     def set_value(self, data):
@@ -22,11 +22,6 @@ class PywrDataframeParameter(PywrParameter):
 
     @property
     def value(self):
-        """
-        if hasattr(self, "_value"):
-            return self._value.to_json()
-        """
-        print(self._value)
         return { "type": self.key,
                  "data": { self.name: self._value},
                  "pandas_kwargs": self.pandas_kwargs

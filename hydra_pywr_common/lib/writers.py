@@ -20,15 +20,22 @@ class PywrJsonWriter():
 
     def __init__(self, network):
         self.network = network
-        self.output = {}
 
-    def as_json(self):
-        self.output["timestepper"] = self.process_timestepper()
-        self.output["metadata"] = self.process_metadata()
-        #self.output["parameters"] = self.process_parameters()
-        self.output["recorders"] = self.process_recorders()
+    def as_dict(self):
+        output = {}
 
-        return json.dumps(self.output)
+        output["timestepper"] = self.process_timestepper()
+        output["metadata"] = self.process_metadata()
+        output["parameters"] = self.process_parameters()
+        output["recorders"] = self.process_recorders()
+        output["nodes"] = self.process_nodes()
+        output["edges"] = self.process_edges()
+
+        return output
+
+    def as_json(self, **json_opts):
+        output = self.as_dict()
+        return json.dumps(output, **json_opts)
 
 
     def process_timestepper(self):
@@ -53,3 +60,12 @@ class PywrJsonWriter():
         recorders = self.network.recorders
 
         return { ref: rec.value for ref, rec in recorders.items() }
+
+    def process_nodes(self):
+        nodes = self.network.nodes
+
+        return [ node.pywr_node for node in nodes.values() ]
+
+    def process_edges(self):
+        edges = self.network.edges
+        return [ edge.value for edge in edges.values() ]

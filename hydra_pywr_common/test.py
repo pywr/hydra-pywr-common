@@ -36,8 +36,8 @@ def _elem(elem, *attrs):
     _b()
 
 if __name__ == "__main__":
-    infile = "/home/paul/data/pywr/Tana.newparam.max_flow_series_with_catchment.json"
-    #infile = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.json"
+    #infile = "/home/paul/data/pywr/Tana.newparam.max_flow_series_with_catchment.json"
+    infile = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.json"
 
     """
     with open(infile, 'r') as fp:
@@ -95,7 +95,6 @@ if __name__ == "__main__":
     output_nodes = filter(lambda n: n.key == "output", pnet.nodes.values())
     delta_cotton = [*output_nodes][0]
     _elem(delta_cotton, "name", "cost", "max_flow", "max_flow.value")
-    print(pnet.parameters.keys())
     print(type(delta_cotton.max_flow))
     print(delta_cotton.__dict__)
     print(delta_cotton.max_flow.name)
@@ -117,11 +116,8 @@ if __name__ == "__main__":
     print(node.pywr_node)
     print(node.__dict__)
     #print(node.pywr_json)
-    exit(55)
     _b()
-    print(node.flow.__dict__)
-    print(node.parameters)
-    _b()
+    print(pnet.parameters)
     """
     for node in pnet.nodes.values():
         print(node.name)
