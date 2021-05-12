@@ -163,7 +163,7 @@ class PywrRecorder(PywrEntity):
     @staticmethod
     def RecorderFactory(arg): # (name, data)
         instkey = arg[1]["type"]
-        instcls = PywrRecorder.recorder_type_map[instkey]
+        instcls = PywrRecorder.recorder_type_map[instkey.lower()]
         return instcls(*arg)
 
 

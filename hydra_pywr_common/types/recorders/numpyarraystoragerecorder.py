@@ -3,8 +3,8 @@ from hydra_pywr_common.types import(
     PywrDataReference
 )
 
-class PywrNumpyArrayNodeRecorder(PywrRecorder):
-    key = "numpyarraynoderecorder"
+class PywrNumpyArrayStorageRecorder(PywrRecorder):
+    key = "numpyarraystoragerecorder"
 
     def __init__(self, name, data):
         super().__init__(name)

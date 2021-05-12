@@ -27,3 +27,8 @@ class PywrDataframeParameter(PywrParameter):
                  "pandas_kwargs": self.pandas_kwargs
                }
 
+"""
+    Fix multiple names in use for PYWR_DATAFRAME parameter
+"""
+
+PywrParameter.parameter_type_map["dataframe"] = PywrDataframeParameter

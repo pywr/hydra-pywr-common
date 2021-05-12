@@ -81,7 +81,7 @@ class PywrRiverGaugeNode(PywrNode):
     def __init__(self, data):
         super().__init__(data)
 
-        self.cost = PywrDataReference.ReferenceFactory("cost", data["cost"])
+        #self.cost = PywrDataReference.ReferenceFactory("cost", data["cost"])
 
 
 class PywrCustomNode(PywrNode):
