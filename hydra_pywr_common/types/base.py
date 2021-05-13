@@ -59,9 +59,14 @@ class PywrNode(PywrEntity):
         instcls = PywrNode.node_type_map.get(instkey)
         if instcls:
             return instcls(data)
+
+        print(data)
+        exit(55)
+        """
         else:
             instcls = PywrNode.node_type_map["__custom_node__"]
             return instcls(data)
+        """
 
     def parse_data(self, data):
         for attrname, value in data.items():
@@ -119,18 +124,37 @@ class PywrNode(PywrEntity):
 
 
 class PywrEdge(PywrEntity):
+    """
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         edge_types.append(cls)
+    """
 
     def __init__(self, data):
         super().__init__()
-        self.src = data[0]
-        self.dest = data[1]
-        self.name = f"{self.src} to {self.dest}"
+        """
+            Characterise edge type
+              - Standard
+              - Slotted
+              - Piecewise???
+        """
+        if len(data) == 2:  # [ src, dest ]
+            self.src = data[0]
+            self.dest = data[1]
+            self.name = f"{self.src} to {self.dest}"
+        elif len(data) == 4:  # [ src, dest, src_slot:int, dest_slot:int ]
+            self.src = data[0]
+            self.dest = data[1]
+            self.src_slot = data[2]
+            self.dest_slot = data[3]
+            self.name = f"{self.src}:{self.src_slot} to {self.dest}:{self.dest_slot}"
+
 
     @property
     def value(self):
+        if hasattr(self, "src_slot"):
+            return [ self.src, self.dest, self.src_slot, self.dest_slot ]
+
         return [ self.src, self.dest ]
 
 

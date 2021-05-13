@@ -39,6 +39,27 @@ class PywrLinkNode(PywrNode):
         super().__init__(data)
 
 
+class PywrPiecewiseLinkNode(PywrNode):
+    key = "piecewiselink"
+
+    def __init__(self, data):
+        super().__init__(data)
+
+
+class PywrInputNode(PywrNode):
+    key = "input"
+
+    def __init__(self, data):
+        super().__init__(data)
+
+
+class PywrStorageNode(PywrNode):
+    key = "storage"
+
+    def __init__(self, data):
+        super().__init__(data)
+
+
 class PywrOutputNode(PywrNode):
     key = "output"
 
@@ -82,6 +103,54 @@ class PywrRiverGaugeNode(PywrNode):
         super().__init__(data)
 
         #self.cost = PywrDataReference.ReferenceFactory("cost", data["cost"])
+
+
+class PywrRiverSplitWithGaugeNode(PywrNode):
+    key = "riversplitwithgauge"
+
+    def __init__(self, data):
+        super().__init__(data)
+
+
+class PywrRiverSplitNode(PywrNode):
+    key = "riversplit"
+
+    def __init__(self, data):
+        super().__init__(data)
+
+
+class PywrAggregatedNode(PywrNode):
+    key = "aggregatednode"
+
+    def __init__(self, data):
+        super().__init__(data)
+
+    """
+            if "nodes" in data:
+            self.nodes = data["nodes"]
+
+        if "factors" in data:
+            self.factors = data["factors"]
+            assert len(self.factors) == len(self.nodes)
+
+    def __len__(self):
+        return len(self.nodes)
+
+    """
+
+
+class PywrAggregatedStorageNode(PywrNode):
+    key = "aggregatedstorage"
+
+    def __init__(self, data):
+        super().__init__(data)
+
+
+class PywrAnnualVirtualStorageNode(PywrNode):
+    key = "annualvirtualstorage"
+
+    def __init__(self, data):
+        super().__init__(data)
 
 
 class PywrCustomNode(PywrNode):

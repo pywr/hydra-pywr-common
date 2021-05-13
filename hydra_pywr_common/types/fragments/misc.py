@@ -12,3 +12,7 @@ class PywrWeather(Fragment):
 
     def __init__(self, data):
         super().__init__()
+
+class NodeList(Fragment):
+    def __init__(self, data):
+        super().__init__()
