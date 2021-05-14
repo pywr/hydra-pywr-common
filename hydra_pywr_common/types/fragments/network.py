@@ -30,7 +30,8 @@ class Timestepper(Fragment):
 
     @property
     def timestep(self):
-        return json.loads(self._timestep.value)
+        #return json.loads(self._timestep.value)
+        return self._timestep.value
 
 
 class Metadata(Fragment):

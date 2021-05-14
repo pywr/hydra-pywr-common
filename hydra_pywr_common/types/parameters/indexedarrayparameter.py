@@ -13,7 +13,7 @@ class PywrIndexedArrayParameter(PywrParameter):
     @property
     def value(self):
         return { "type": self.key,
-                 "indexed_parameter": self.indexed_parameter,
+                 "index_parameter": self.index_parameter,
                  "params": self.params,
                }
 

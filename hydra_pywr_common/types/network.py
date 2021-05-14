@@ -23,8 +23,8 @@ from .fragments.network import(
 class PywrNetwork():
 
     def __init__(self, reader):
-        self.timestepper = reader.timestepper
         self.metadata = reader.metadata
+        self.timestepper = reader.timestepper
         self.nodes = reader.nodes
         self.edges = reader.edges
         self.parameters = reader.parameters

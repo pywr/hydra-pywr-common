@@ -1,6 +1,6 @@
 import json
 
-from hydra_pywr_common.types.model import(
+from hydra_pywr_common.types.nodes import(
     PywrNode,
     PywrParameter,
     PywrCatchmentNode
@@ -18,10 +18,15 @@ from hydra_pywr_common.types.network import(
     PywrNetwork
 )
 
+from hydra_pywr_common.lib.writers import PywrJsonWriter, PywrHydraWriter
+
+
 #from hydra_pywr_common.types import *
 
-def _b():
-    print('='*16)
+def _b(txt=None, width=78):
+    centre = f"  {txt}  " if txt else "="
+    print(f"\n{{:=^{width}}}".format(centre))
+
 
 def _elem(elem, *attrs):
     print(elem)
@@ -117,7 +122,17 @@ if __name__ == "__main__":
     print(node.__dict__)
     #print(node.pywr_json)
     _b()
-    print(pnet.parameters)
+    #print(pnet.parameters)
+    #writer = PywrJsonWriter(pnet)
+    agg_nodes = filter(lambda n: n.key == "aggregatednode", pnet.nodes.values())
+    #agg_nodes = filter(lambda n: n.name == "Ouse Washes diversion ratio", pnet.nodes.values())
+    for idx, n in enumerate(agg_nodes):
+        _b(f"agg_node[{idx}]")
+        print(n, n.key)
+        print(vars(n))
+    #output = writer.as_dict()
+    #with open("/tmp/ruth.json", mode='w') as fp:
+    #    json.dump(output, fp, indent=2)
     """
     for node in pnet.nodes.values():
         print(node.name)
@@ -132,3 +147,6 @@ if __name__ == "__main__":
 
     hnet = PywrNetwork.from_hydra_network(hydra_src)
     """
+    _b("Hydra Network")
+    hwriter = PywrHydraWriter(pnet)
+    hwriter.build_hydra_network()

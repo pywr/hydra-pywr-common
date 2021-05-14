@@ -9,8 +9,8 @@ class PywrDataframeParameter(PywrParameter):
         super().__init__(name)
 
         data = argdata.get("data")
-        basekey = next(iter(data))  # The first key in data dict
-        series = data[basekey]
+        self.basekey = next(iter(data))  # The first key in data dict
+        series = data[self.basekey]
         self.set_value(series)
         self.pandas_kwargs = argdata.get("pandas_kwargs", {})
         #print(f"{basekey=} {name=}")
@@ -23,7 +23,7 @@ class PywrDataframeParameter(PywrParameter):
     @property
     def value(self):
         return { "type": self.key,
-                 "data": { self.name: self._value},
+                 "data": { self.basekey: self._value},
                  "pandas_kwargs": self.pandas_kwargs
                }
 

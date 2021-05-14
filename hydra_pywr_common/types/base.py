@@ -60,13 +60,9 @@ class PywrNode(PywrEntity):
         if instcls:
             return instcls(data)
 
-        print(data)
-        exit(55)
-        """
         else:
             instcls = PywrNode.node_type_map["__custom_node__"]
             return instcls(data)
-        """
 
     def parse_data(self, data):
         for attrname, value in data.items():
