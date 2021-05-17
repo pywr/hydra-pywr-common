@@ -5,6 +5,7 @@ from hydra_pywr_common.types import(
 
 class PywrFlowDurationCurveDeviationRecorder(PywrRecorder):
     key = "flowdurationcurvedeviationrecorder"
+    hydra_data_type = "PYWR_RECORDER_FDC_DEVIATION"
 
     def __init__(self, name, data):
         super().__init__(name)

@@ -1,9 +1,5 @@
-class Fragment():
-    """ Base of all Pywr Fragments """
-    def __init__(self):
-        pass
+class HydraDataset():
 
-    # TODO class-specific property version...
     def attr_dataset(self, attr_name):
         attr = getattr(self, attr_name)
         dataset = { "name":  attr_name,

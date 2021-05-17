@@ -2,6 +2,7 @@ from hydra_pywr_common.types import PywrParameter
 
 class PywrAggregatedParameter(PywrParameter):
     key = "aggregatedparameter"
+    hydra_data_type = "PYWR_PARAMETER_AGGREGATED"
 
     def __init__(self, name, data, **kwargs):
         super().__init__(name)

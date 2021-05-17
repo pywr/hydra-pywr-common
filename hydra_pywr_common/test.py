@@ -1,4 +1,5 @@
 import json
+from pprint import pprint
 
 from hydra_pywr_common.types.nodes import(
     PywrNode,
@@ -42,7 +43,8 @@ def _elem(elem, *attrs):
 
 if __name__ == "__main__":
     #infile = "/home/paul/data/pywr/Tana.newparam.max_flow_series_with_catchment.json"
-    infile = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.json"
+    infile = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.1.4938.NEW.json"
+    #infile = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.json"
 
     """
     with open(infile, 'r') as fp:
@@ -150,3 +152,21 @@ if __name__ == "__main__":
     _b("Hydra Network")
     hwriter = PywrHydraWriter(pnet)
     hwriter.build_hydra_network()
+    #pprint(pnet.parameters)
+    #exit(77)
+    """
+    for node in pnet.nodes.values():
+        print(f"{node.name} => {node.type.value}")
+        if node.name == "Aggregated Demand":
+            print(f"{node.unresolved_parameter_references=}")
+            print(node.__dict__)
+            print(node.intrinsic_attrs)
+            print(node.parameters)
+            print(node.recorders)
+        #for attr_name in node.parameters:
+        for attr_name in node.intrinsic_attrs:
+            if attr_name == "type":
+                continue
+            print(node.attr_dataset(attr_name))
+        print()
+    """

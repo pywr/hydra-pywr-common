@@ -2,6 +2,7 @@ from hydra_pywr_common.types import PywrParameter
 
 class PywrInterpolatedFlowParameter(PywrParameter):
     key = "interpolatedflowparameter"
+    hydra_data_type = "PYWR_PARAMETER"
 
     def __init__(self, name, data, **kwargs):
         super().__init__(name)

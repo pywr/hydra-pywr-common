@@ -5,6 +5,7 @@ from hydra_pywr_common.lib.utils import(
 
 class PywrMonthlyProfileParameter(PywrParameter):
     key = "monthlyprofile"
+    hydra_data_type = "PYWR_PARAMETER_MONTHLY_PROFILE"
 
     def __init__(self, name, data, **kwargs):
         super().__init__(name)

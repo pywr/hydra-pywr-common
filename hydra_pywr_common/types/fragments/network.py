@@ -41,6 +41,9 @@ class Metadata(Fragment):
         self._title = PywrDataReference.ReferenceFactory("title", data["title"])
         self._description = PywrDataReference.ReferenceFactory("description", data.get("description", ""))
 
+        if "projection" in data:
+            self.projection = PywrDataReference.ReferenceFactory("projection", data.get("projection", ""))
+
     @property
     def title(self):
         return self._title.value
@@ -48,3 +51,10 @@ class Metadata(Fragment):
     @property
     def description(self):
         return self._description.value
+
+    @property
+    def projection(self):
+        try:
+            return self._projection.value
+        except AttributeError:
+            return None

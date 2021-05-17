@@ -5,6 +5,7 @@ from hydra_pywr_common.types import(
 
 class PywrStorageDurationCurveRecorder(PywrRecorder):
     key = "storagedurationcurverecorder"
+    hydra_data_type = "PYWR_RECORDER_SDC"
 
     def __init__(self, name, data):
         super().__init__(name)

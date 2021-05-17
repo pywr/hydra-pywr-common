@@ -14,6 +14,10 @@ from .fragments.position import(
     PywrPosition
 )
 
+from .mixins import(
+    HydraDataset
+)
+
 
 class PywrEntity():
     """ Base type for all elements capable of
@@ -21,22 +25,23 @@ class PywrEntity():
     """
     pass
 
+"""
 class HydraDataset():
 
-    @property
-    def dataset(self):
-        dataset = { "name":  self.name,
-                    "type":  self.hydra_data_type,
-                    "value": self.value,
+    def attr_dataset(self, attr_name):
+        attr = getattr(self, attr_name)
+        dataset = { "name":  attr_name,
+                    "type":  attr.hydra_data_type,
+                    "value": attr.value,
                     "metadata": "{}",
                     "unit": "-",
                     "hidden": 'N'
                   }
         return dataset
+"""
 
 
-
-class PywrNode(PywrEntity):
+class PywrNode(PywrEntity, HydraDataset):
     node_type_map = {}
     base_attrs = ("name", "comment", "position")
 
@@ -66,6 +71,8 @@ class PywrNode(PywrEntity):
 
     def parse_data(self, data):
         for attrname, value in data.items():
+            #if self.name == "Aggregated Demand":
+            #    import pudb; pudb.set_trace()
             if attrname in PywrNode.base_attrs:
                 continue
 
@@ -155,6 +162,7 @@ class PywrEdge(PywrEntity):
 
 
 class PywrParameter(PywrEntity, HydraDataset):
+    #hydra_data_type = "PYWR_PARAMETER"
     parameter_type_map = {}
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
