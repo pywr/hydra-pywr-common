@@ -9,6 +9,7 @@ from .base import Fragment
 class Timestepper(Fragment):
     def __init__(self, data):
         super().__init__()
+        self.parse_data(data)
 
         """
         self._start = datetime.datetime.fromisoformat(data["start"])
@@ -16,6 +17,7 @@ class Timestepper(Fragment):
         self._timestep = int(data["timestep"])   # int only ???
         """
 
+    """
         self._start = PywrDataReference.ReferenceFactory("start", data["start"])
         self._end = PywrDataReference.ReferenceFactory("end", data["end"])
         self._timestep = PywrDataReference.ReferenceFactory("timestep", data["timestep"])
@@ -33,11 +35,22 @@ class Timestepper(Fragment):
         #return json.loads(self._timestep.value)
         return self._timestep.value
 
+    """
+    def parse_data(self, data):
+        for attrname, value in data.items():
+            typed_attr = PywrDataReference.ReferenceFactory(attrname, value)
+            setattr(self, attrname, typed_attr)
+            self.intrinsic_attrs.append(attrname)
+
+
+
 
 class Metadata(Fragment):
     def __init__(self, data):
         super().__init__()
+        self.parse_data(data)
 
+    """
         self._title = PywrDataReference.ReferenceFactory("title", data["title"])
         self._description = PywrDataReference.ReferenceFactory("description", data.get("description", ""))
 
@@ -58,3 +71,10 @@ class Metadata(Fragment):
             return self._projection.value
         except AttributeError:
             return None
+    """
+
+    def parse_data(self, data):
+        for attrname, value in data.items():
+            typed_attr = PywrDataReference.ReferenceFactory(attrname, value)
+            setattr(self, attrname, typed_attr)
+            self.intrinsic_attrs.append(attrname)

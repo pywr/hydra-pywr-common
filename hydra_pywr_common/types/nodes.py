@@ -153,6 +153,20 @@ class PywrAnnualVirtualStorageNode(PywrNode):
         super().__init__(data)
 
 
+class PywrReservoirNode(PywrNode):
+    key = "reservoir"
+
+    def __init__(self, data):
+        super().__init__(data)
+
+
+class PywrTurbineNode(PywrNode):
+    key = "turbine"
+
+    def __init__(self, data):
+        super().__init__(data)
+
+
 class PywrCustomNode(PywrNode):
     key = "__custom_node__"
 

@@ -56,6 +56,9 @@ class PywrNode(PywrEntity, HydraDataset):
         self.position = PywrPosition.PywrPositionFactory(location) if location else None
         self.comment = data.get("comment", "")
         self.intrinsic_attrs = []
+        #if self.name == "Gitaru":
+        #    print(data)
+        #    exit(55)
         self.parse_data(data)
 
     @staticmethod
@@ -127,6 +130,7 @@ class PywrNode(PywrEntity, HydraDataset):
 
 
 class PywrEdge(PywrEntity):
+    key = "edge"
     """
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -161,7 +165,7 @@ class PywrEdge(PywrEntity):
         return [ self.src, self.dest ]
 
 
-class PywrParameter(PywrEntity, HydraDataset):
+class PywrParameter(PywrEntity):
     #hydra_data_type = "PYWR_PARAMETER"
     parameter_type_map = {}
     def __init_subclass__(cls, **kwargs):
@@ -176,6 +180,19 @@ class PywrParameter(PywrEntity, HydraDataset):
 
     def __init__(self, name):
         self.name = name
+
+    def attr_dataset(self, attr_name):
+        attr = getattr(self, attr_name)
+        value = attr.value
+        del value["type"]
+        dataset = { "name":  attr_name,
+                    "type":  attr.hydra_data_type,
+                    "value": json.dumps(value),
+                    "metadata": "{}",
+                    "unit": "-",
+                    "hidden": 'N'
+                  }
+        return dataset
 
 
 
@@ -244,6 +261,7 @@ class PywrDataReference(PywrEntity, ABC):
     def value(self):
         pass
 
+    """
     @property
     def dataset(self):
         dataset = { "name":  self.name,
@@ -254,6 +272,7 @@ class PywrDataReference(PywrEntity, ABC):
                     "hidden": 'N'
                   }
         return dataset
+    """
 
 
 class PywrDescriptorReference(PywrDataReference):
@@ -294,7 +313,7 @@ class PywrDataframeReference(PywrDataReference):
 
     @property
     def value(self):
-        return self._value
+        return json.dumps(self._value)
 
 class PywrParameterReference(PywrDataReference):
     def __init__(self, name):

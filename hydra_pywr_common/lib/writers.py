@@ -1,4 +1,5 @@
 import json
+from pprint import pprint
 
 from hydra_pywr_common.types.base import(
     PywrNode,
@@ -46,15 +47,15 @@ class PywrJsonWriter():
 
     def process_timestepper(self):
         timestepper = self.network.timestepper
-        return { "start": timestepper.start,
-                 "end": timestepper.end,
-                 "timestep": timestepper.timestep
+        return { "start": timestepper.start.value,
+                 "end": timestepper.end.value,
+                 "timestep": timestepper.timestep.value
                }
 
     def process_metadata(self):
         metadata = self.network.metadata
-        return { "title": metadata.title,
-                 "description": metadata.description
+        return { "title": metadata.title.value,
+                 "description": metadata.description.value
                }
 
     def process_parameters(self):
@@ -84,7 +85,7 @@ def make_hydra_attr(name, desc=None):
            }
 
 """
-    PywrNetwork => Hydra_network
+    PywrNetwork => hydra_network
 """
 class PywrHydraWriter():
 
@@ -125,6 +126,11 @@ class PywrHydraWriter():
         self._next_attr_id -= 1
         return self._next_attr_id
 
+    def get_node_by_name(self, name):
+        for node in self.hydra_nodes:
+            if node["name"] == name:
+                return node
+
     def make_baseline_scenario(self, resource_scenarios):
         return { "name": "Baseline",
                  "description": "hydra-pywr Baseline scenario",
@@ -148,7 +154,7 @@ class PywrHydraWriter():
 
     def build_hydra_network(self):
 
-        self.initialise_hydra_connection(user_id=2, template_name="Pywr Full template (Jan2021)")
+        self.initialise_hydra_connection(user_id=2, template_name="Pywr Full template (Jan2021)", project_id=4)
         """ Register Hydra attributes """
         self.hydra_attributes = self.register_hydra_attributes()
         print(self.hydra_attributes)
@@ -158,28 +164,30 @@ class PywrHydraWriter():
 
         """ Build network elements and resource_scenarios with datasets """
         self.hydra_nodes, node_scenarios = self.build_hydra_nodes()
-        print(self.hydra_nodes)
-        print(node_scenarios)
+        #print(self.hydra_nodes)
+        #print(node_scenarios)
         self.network_attributes, network_scenarios = self.build_network_attributes()
-        print(self.network_attributes)
-        print(network_scenarios)
+        #pprint(self.network_attributes)
+        #pprint(network_scenarios)
+        self.hydra_links, link_scenarios = self.build_hydra_links()
 
-        resource_scenarios = node_scenarios + network_scenarios # + link_scenarios
+        resource_scenarios = node_scenarios + network_scenarios + link_scenarios
 
         """ Create baseline scenario with resource_scenarios """
-        baseline_scenario = make_baseline_scenario(resource_scenarios)
+        baseline_scenario = self.make_baseline_scenario(resource_scenarios)
 
         """ Assemble complete network """
-        network_name = self.network.metadata.title
+        network_name = self.network.metadata.title.value
         network_hydratype = self.get_hydra_network_type()
-        network_description = self.network.metadata.description
-        map_projection = self.metadata.projection if self.metadata.projection else PywrHydraWriter.default_map_projection
+        network_description = self.network.metadata.description.value
+        map_projection = self.network.metadata.projection.value if hasattr(self.network.metadata, "projection") else PywrHydraWriter.default_map_projection
 
         hydra_network = {
-            "name": network.name,
+            "name": network_name,
             "description": network_description,
             "project_id": self.project_id,
             "nodes": self.hydra_nodes,
+            "links": self.hydra_links,
             "layout": None,
             "scenarios": [baseline_scenario],
             "projection": map_projection,
@@ -188,6 +196,9 @@ class PywrHydraWriter():
         }
 
         """ Pass network to Hydra"""
+        #pprint(hydra_network)
+        #pprint(network_hydratype)
+        self.hydra.add_network(hydra_network)
 
 
     def register_hydra_attributes(self):
@@ -200,6 +211,10 @@ class PywrHydraWriter():
             #for attr_name in vars(node):
             for attr_name in node.intrinsic_attrs:
                 pending_attrs.add(attr_name)
+
+        for meta_attr in self.network.metadata.intrinsic_attrs:
+            print(f"[metadata attr] {meta_attr}")
+            pending_attrs.add(f"metadata.{meta_attr}")
 
         attrs = [ make_hydra_attr(attr_name) for attr_name in pending_attrs - excluded_attrs ]
 
@@ -237,7 +252,7 @@ class PywrHydraWriter():
         for node in self.network.nodes.values():
             resource_attributes = []
 
-            # TODO Fix this is node ctor path
+            # TODO Move this to node ctor path???
             for attr_name in filter(lambda a: a not in exclude_node_attrs, node.intrinsic_attrs):
                 ra, rs = self.make_resource_attr_and_scenario(node, attr_name)
                 resource_attributes.append(ra)
@@ -261,14 +276,40 @@ class PywrHydraWriter():
 
 
     def build_network_attributes(self):
+        exclude_metadata_attrs = ("title", "description")
         hydra_network_attrs = []
         resource_scenarios = []
 
-        timestepper_attrs = { 'timestepper.start', 'timestepper.end', 'timestepper.timestep'}
+        for attr_name in self.network.timestepper.intrinsic_attrs:
+            ra, rs = self.make_resource_attr_and_scenario(self.network.timestepper, f"timestepper.{attr_name}")
+            hydra_network_attrs.append(ra)
+            resource_scenarios.append(rs)
 
-        for attr_name in timestepper_attrs:
-            ra, rs = self.make_resource_attr_and_scenario(self.network.timestepper, attr_name)
+        for attr_name in filter(lambda a: a not in exclude_metadata_attrs, self.network.metadata.intrinsic_attrs):
+            ra, rs = self.make_resource_attr_and_scenario(self.network.metadata, f"metadata.{attr_name}")
             hydra_network_attrs.append(ra)
             resource_scenarios.append(rs)
 
         return hydra_network_attrs, resource_scenarios
+
+
+    def build_hydra_links(self):
+        hydra_links = []
+        resource_scenarios = []
+
+        for edge in self.network.edges.values():
+            resource_attributes = []
+
+            hydra_link = {}
+            hydra_link["resource_type"] = "LINK"
+            hydra_link["id"] = self.get_next_link_id()
+            hydra_link["name"] = edge.name
+            hydra_link["node_1_id"] = self.get_node_by_name(edge.src)["id"]
+            hydra_link["node_2_id"] = self.get_node_by_name(edge.dest)["id"]
+            hydra_link["layout"] = {}
+            hydra_link["resource_attributes"] = resource_attributes
+            hydra_link["types"] = [{ "id": self.get_typeid_by_name(edge.key) }]
+
+            hydra_links.append(hydra_link)
+
+        return hydra_links, resource_scenarios

@@ -55,7 +55,7 @@ class PywrNetwork():
                 except KeyError as e:
                     # No such param
                     raise
-                print(attrname)
+                #print(attrname)
                 #nodename, nodeattr = parse_reference_key(attrname)
                 #setattr(node, attr, param)
                 setattr(node, attrname, param)

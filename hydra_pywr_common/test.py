@@ -42,8 +42,8 @@ def _elem(elem, *attrs):
     _b()
 
 if __name__ == "__main__":
-    #infile = "/home/paul/data/pywr/Tana.newparam.max_flow_series_with_catchment.json"
-    infile = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.1.4938.NEW.json"
+    infile = "/home/paul/data/pywr/Tana.newparam.max_flow_series_with_catchment.json"
+    #infile = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.1.4938.NEW.json"
     #infile = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.json"
 
     """
@@ -96,6 +96,7 @@ if __name__ == "__main__":
     pnet = PywrNetwork.from_source_file(infile)
 
     _elem(pnet, "timestepper", "metadata")
+    """
     #print(pnet.nodes)
     #print(pnet.parameters)
 
@@ -136,6 +137,8 @@ if __name__ == "__main__":
     #with open("/tmp/ruth.json", mode='w') as fp:
     #    json.dump(output, fp, indent=2)
     """
+
+    """
     for node in pnet.nodes.values():
         print(node.name)
         print(node.pywr_json)
@@ -152,6 +155,10 @@ if __name__ == "__main__":
     _b("Hydra Network")
     hwriter = PywrHydraWriter(pnet)
     hwriter.build_hydra_network()
+    #gitaru = pnet.nodes["Gitaru"]
+    #print(gitaru)
+    #print(vars(gitaru))
+    #print(gitaru.bathymetry.value)
     #pprint(pnet.parameters)
     #exit(77)
     """
