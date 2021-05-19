@@ -156,11 +156,11 @@ class PywrHydraWriter():
 
         self.initialise_hydra_connection(user_id=2, template_name="Pywr Full template (Jan2021)", project_id=4)
         """ Register Hydra attributes """
+        self.network.resolve_parameter_references()
+        self.network.resolve_backwards_parameter_references()
+        self.network.resolve_recorder_references()
         self.hydra_attributes = self.register_hydra_attributes()
         print(self.hydra_attributes)
-
-        self.network.resolve_parameter_references()
-        self.network.resolve_recorder_references()
 
         """ Build network elements and resource_scenarios with datasets """
         self.hydra_nodes, node_scenarios = self.build_hydra_nodes()
@@ -213,7 +213,6 @@ class PywrHydraWriter():
                 pending_attrs.add(attr_name)
 
         for meta_attr in self.network.metadata.intrinsic_attrs:
-            print(f"[metadata attr] {meta_attr}")
             pending_attrs.add(f"metadata.{meta_attr}")
 
         attrs = [ make_hydra_attr(attr_name) for attr_name in pending_attrs - excluded_attrs ]
@@ -267,8 +266,8 @@ class PywrHydraWriter():
             hydra_node["types"] = [{ "id": self.get_typeid_by_name(node.key) }]
 
             if hasattr(node, "position"):
-                hydra_node["x"] = node.position.long
-                hydra_node["y"] = node.position.lat
+                hydra_node["x"] = node.position.x
+                hydra_node["y"] = node.position.y
 
             hydra_nodes.append(hydra_node)
 
@@ -276,7 +275,7 @@ class PywrHydraWriter():
 
 
     def build_network_attributes(self):
-        exclude_metadata_attrs = ("title", "description")
+        exclude_metadata_attrs = ("title", "description", "projection")
         hydra_network_attrs = []
         resource_scenarios = []
 
@@ -285,7 +284,7 @@ class PywrHydraWriter():
             hydra_network_attrs.append(ra)
             resource_scenarios.append(rs)
 
-        for attr_name in filter(lambda a: a not in exclude_metadata_attrs, self.network.metadata.intrinsic_attrs):
+        for attr_name in (a for a in self.network.metadata.intrinsic_attrs if a not in exclude_metadata_attrs):
             ra, rs = self.make_resource_attr_and_scenario(self.network.metadata, f"metadata.{attr_name}")
             hydra_network_attrs.append(ra)
             resource_scenarios.append(rs)

@@ -32,13 +32,13 @@ class PywrGeographicPosition(PywrPosition):
         self.coord = Coord(*data)
 
     @property
-    def lat(self):
+    def y(self):
         return self.coord.y
 
     @property
-    def long(self):
+    def x(self):
         return self.coord.x
 
     @property
     def value(self):
-        return { self.key: [ self.long, self.lat ] }
+        return { self.key: [ self.x, self.y ] }

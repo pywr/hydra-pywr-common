@@ -2,6 +2,7 @@ from hydra_pywr_common.types import PywrParameter
 
 class PywrIndexedArrayParameter(PywrParameter):
     key = "indexedarrayparameter"
+    hydra_data_type = "PYWR_PARAMETER_INDEXED_ARRAY"
 
     def __init__(self, name, data, **kwargs):
         super().__init__(name)

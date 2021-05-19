@@ -5,6 +5,7 @@ from hydra_pywr_common.lib.utils import(
 
 class PywrDailyProfileParameter(PywrParameter):
     key = "dailyprofile"
+    hydra_data_type = "PYWR_PARAMETER"
 
     def __init__(self, name, data, **kwargs):
         super().__init__(name)

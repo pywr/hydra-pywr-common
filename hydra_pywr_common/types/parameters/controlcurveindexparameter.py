@@ -2,6 +2,7 @@ from hydra_pywr_common.types import PywrParameter
 
 class PywrControlCurveIndexParameter(PywrParameter):
     key = "controlcurveindexparameter"
+    hydra_data_type = "PYWR_PARAMETER_CONTROL_CURVE_INDEX"
 
     def __init__(self, name, data, **kwargs):
         super().__init__(name)

@@ -5,6 +5,7 @@ from hydra_pywr_common.types import(
 
 class PywrRollingMeanFlowNodeRecorder(PywrRecorder):
     key = "rollingmeanflownoderecorder"
+    hydra_data_type = "PYWR_RECORDER"
 
     def __init__(self, name, data):
         super().__init__(name)

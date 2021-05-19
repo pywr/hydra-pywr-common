@@ -73,9 +73,9 @@ class PywrNode(PywrEntity, HydraDataset):
             return instcls(data)
 
     def parse_data(self, data):
+        #if self.name == "link_48":
+        #    breakpoint()
         for attrname, value in data.items():
-            #if self.name == "Aggregated Demand":
-            #    import pudb; pudb.set_trace()
             if attrname in PywrNode.base_attrs:
                 continue
 

@@ -5,6 +5,7 @@ from hydra_pywr_common.types import(
 
 class PywrNumpyArrayNodeRecorder(PywrRecorder):
     key = "numpyarraynoderecorder"
+    hydra_data_type = "PYWR_RECORDER"
 
     def __init__(self, name, data):
         super().__init__(name)

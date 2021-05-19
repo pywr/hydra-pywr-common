@@ -42,8 +42,8 @@ def _elem(elem, *attrs):
     _b()
 
 if __name__ == "__main__":
-    infile = "/home/paul/data/pywr/Tana.newparam.max_flow_series_with_catchment.json"
-    #infile = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.1.4938.NEW.json"
+    #infile = "/home/paul/data/pywr/Tana.newparam.max_flow_series_with_catchment.json"
+    infile = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.1.4938.NEW.json"
     #infile = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.json"
 
     """
@@ -95,8 +95,8 @@ if __name__ == "__main__":
 
     pnet = PywrNetwork.from_source_file(infile)
 
-    _elem(pnet, "timestepper", "metadata")
     """
+    _elem(pnet, "timestepper", "metadata")
     #print(pnet.nodes)
     #print(pnet.parameters)
 
@@ -161,6 +161,15 @@ if __name__ == "__main__":
     #print(gitaru.bathymetry.value)
     #pprint(pnet.parameters)
     #exit(77)
+    """
+    link48 = pnet.nodes["link_48"]
+    print(link48)
+    print(vars(link48))
+    print(link48.recorders)
+    print(link48.fdc)
+    """
+    uprnodes = [ n for n in pnet.nodes.values() if n.has_unresolved_parameter_reference ]
+    print(f"{uprnodes=}")
     """
     for node in pnet.nodes.values():
         print(f"{node.name} => {node.type.value}")
