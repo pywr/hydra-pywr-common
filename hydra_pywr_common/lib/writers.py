@@ -91,8 +91,18 @@ class PywrHydraWriter():
 
     default_map_projection = "EPSG:4326"
 
-    def __init__(self, network):
+    def __init__(self, network,
+                       hostname=None,
+                       session_id=None,
+                       user_id=None,
+                       template_id=None,
+                       project_id=None):
         self.network = network
+        self.hostname = hostname
+        self.session_id = session_id
+        self.user_id = user_id
+        self.template_id = template_id
+        self.project_id = project_id
 
         self._next_node_id = 0
         self._next_link_id = 0
@@ -138,29 +148,25 @@ class PywrHydraWriter():
                }
 
 
-    def initialise_hydra_connection(self,
-                                    hostname=None,
-                                    session_id=None,
-                                    user_id=None,
-                                    template_name=None,
-                                    project_id=None):
+    def initialise_hydra_connection(self):
         from hydra_client.connection import JSONConnection
-        self.hydra = JSONConnection(hostname, session_id=session_id, user_id=user_id)
-        self.project_id = project_id
+        self.hydra = JSONConnection(self.hostname, session_id=self.session_id, user_id=self.user_id)
 
-        print(f"Retrieving template '{template_name}'...")
-        self.template = self.hydra.get_template_by_name(template_name)
+        #print(f"Retrieving template '{template_name}'...")
+        #self.template = self.hydra.get_template_by_name(template_name)
+        print(f"Retrieving template id '{self.template_id}'...")
+        self.template = self.hydra.get_template(self.template_id)
 
 
-    def build_hydra_network(self):
+    def build_hydra_network(self, projection=None):
 
-        self.initialise_hydra_connection(user_id=2, template_name="Pywr Full template (Jan2021)", project_id=4)
+        self.initialise_hydra_connection()
         """ Register Hydra attributes """
         self.network.resolve_parameter_references()
         self.network.resolve_backwards_parameter_references()
         self.network.resolve_recorder_references()
         self.hydra_attributes = self.register_hydra_attributes()
-        print(self.hydra_attributes)
+        #print(self.hydra_attributes)
 
         """ Build network elements and resource_scenarios with datasets """
         self.hydra_nodes, node_scenarios = self.build_hydra_nodes()
@@ -180,7 +186,10 @@ class PywrHydraWriter():
         network_name = self.network.metadata.title.value
         network_hydratype = self.get_hydra_network_type()
         network_description = self.network.metadata.description.value
-        map_projection = self.network.metadata.projection.value if hasattr(self.network.metadata, "projection") else PywrHydraWriter.default_map_projection
+        if projection:
+            map_projection = projection
+        else:
+            map_projection = self.network.metadata.projection.value if hasattr(self.network.metadata, "projection") else PywrHydraWriter.default_map_projection
 
         hydra_network = {
             "name": network_name,
@@ -202,13 +211,11 @@ class PywrHydraWriter():
 
 
     def register_hydra_attributes(self):
-        #pending_attrs = set(attr_name for attr_name in PywrNode.base_attrs)
         timestepper_attrs = { 'timestepper.start', 'timestepper.end', 'timestepper.timestep'}
         excluded_attrs = { 'position', 'intrinsic_attrs', 'type' }
         pending_attrs = timestepper_attrs
 
         for node in self.network.nodes.values():
-            #for attr_name in vars(node):
             for attr_name in node.intrinsic_attrs:
                 pending_attrs.add(attr_name)
 
@@ -217,7 +224,6 @@ class PywrHydraWriter():
 
         attrs = [ make_hydra_attr(attr_name) for attr_name in pending_attrs - excluded_attrs ]
 
-        #print(attrs)
         return self.hydra.add_attributes(attrs)
 
 

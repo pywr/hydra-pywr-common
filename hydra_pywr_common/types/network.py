@@ -76,8 +76,8 @@ class PywrNetwork():
             except KeyError as e:
                 raise
             if hasattr(node, attrname):
-                print(f"Node {node.name} already has {attrname} attr for <{param.key}>")
+                #print(f"Node {node.name} already has {attrname} attr for <{param.key}>")
                 continue
             setattr(node, attrname, param)
             node.intrinsic_attrs.append(attrname)
-            print(f"Added param <{param.key}> to {node.name} as {attrname}")
+            #print(f"Added param <{param.key}> to {node.name} as {attrname}")

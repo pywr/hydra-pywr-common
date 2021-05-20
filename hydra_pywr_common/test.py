@@ -42,9 +42,9 @@ def _elem(elem, *attrs):
     _b()
 
 if __name__ == "__main__":
-    #infile = "/home/paul/data/pywr/Tana.newparam.max_flow_series_with_catchment.json"
-    infile = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.1.4938.NEW.json"
-    #infile = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.json"
+    #infile, projection = "/home/paul/data/pywr/Tana.newparam.max_flow_series_with_catchment.json", "EPSG:4326"
+    infile, projection = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.1.4938.NEW.json", "EPSG:27700"
+    #infile, projection = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.json", "EPSG:27700"
 
     """
     with open(infile, 'r') as fp:
@@ -153,8 +153,8 @@ if __name__ == "__main__":
     hnet = PywrNetwork.from_hydra_network(hydra_src)
     """
     _b("Hydra Network")
-    hwriter = PywrHydraWriter(pnet)
-    hwriter.build_hydra_network()
+    hwriter = PywrHydraWriter(pnet, user_id=2, template_id=1, project_id=4)
+    hwriter.build_hydra_network(projection)
     #gitaru = pnet.nodes["Gitaru"]
     #print(gitaru)
     #print(vars(gitaru))
@@ -168,8 +168,8 @@ if __name__ == "__main__":
     print(link48.recorders)
     print(link48.fdc)
     """
-    uprnodes = [ n for n in pnet.nodes.values() if n.has_unresolved_parameter_reference ]
-    print(f"{uprnodes=}")
+    #uprnodes = [ n for n in pnet.nodes.values() if n.has_unresolved_parameter_reference ]
+    #print(f"{uprnodes=}")
     """
     for node in pnet.nodes.values():
         print(f"{node.name} => {node.type.value}")

@@ -14,8 +14,6 @@ class PywrAggregatedParameter(PywrParameter):
         if "__recorder__" in data:
             self.__recorder__ = data["__recorder__"]
 
-        breakpoint()
-
     @property
     def value(self):
         ret = { "type": self.key,
