@@ -6,7 +6,7 @@ class HydraDataset():
         attr_inst = getattr(self, attr_name)
         value = attr_inst.value
         if isinstance(value, dict):
-            del value["type"]
+            #del value["type"]
             value = json.dumps(value)
         if isinstance(value, list):
             value = json.dumps(value)

@@ -184,7 +184,7 @@ class PywrParameter(PywrEntity):
     def attr_dataset(self, attr_name):
         attr = getattr(self, attr_name)
         value = attr.value
-        del value["type"]
+        #del value["type"]
         dataset = { "name":  attr_name,
                     "type":  attr.hydra_data_type,
                     "value": json.dumps(value),
@@ -313,7 +313,8 @@ class PywrDataframeReference(PywrDataReference):
 
     @property
     def value(self):
-        return json.dumps(self._value)
+        #return json.dumps(self._value)
+        return self._value
 
 class PywrParameterReference(PywrDataReference):
     def __init__(self, name):
