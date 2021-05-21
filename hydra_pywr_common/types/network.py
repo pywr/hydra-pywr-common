@@ -66,7 +66,8 @@ class PywrNetwork():
             except KeyError as e:
                 raise
             setattr(node, attrname, rec)
-            node.intrinsic_attrs.append(attrname)
+            if attrname not in node.intrinsic_attrs:
+                node.intrinsic_attrs.append(attrname)
 
     def resolve_backwards_parameter_references(self):
         for noderef, param in self.parameters.items():
@@ -75,9 +76,12 @@ class PywrNetwork():
                 node = self.nodes[nodename]
             except KeyError as e:
                 raise
+            """
             if hasattr(node, attrname):
                 #print(f"Node {node.name} already has {attrname} attr for <{param.key}>")
                 continue
+            """
             setattr(node, attrname, param)
-            node.intrinsic_attrs.append(attrname)
+            if attrname not in node.intrinsic_attrs:
+                node.intrinsic_attrs.append(attrname)
             #print(f"Added param <{param.key}> to {node.name} as {attrname}")

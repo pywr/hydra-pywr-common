@@ -4,7 +4,7 @@ from .base import(
     PywrParameter,
     PywrRecorder,
     PywrDataReference,
-    PywrParameterReference
+    PywrComponentReference
 )
 
 from .fragments.misc import(

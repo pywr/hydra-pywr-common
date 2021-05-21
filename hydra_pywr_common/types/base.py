@@ -73,8 +73,6 @@ class PywrNode(PywrEntity, HydraDataset):
             return instcls(data)
 
     def parse_data(self, data):
-        #if self.name == "link_48":
-        #    breakpoint()
         for attrname, value in data.items():
             if attrname in PywrNode.base_attrs:
                 continue
@@ -85,12 +83,12 @@ class PywrNode(PywrEntity, HydraDataset):
 
     @property
     def has_unresolved_parameter_reference(self):
-        refs = filter(lambda a: isinstance(a, PywrParameterReference), self.__dict__.values())
+        refs = filter(lambda a: isinstance(a, PywrComponentReference), self.__dict__.values())
         return any(refs)
 
     @property
     def unresolved_parameter_references(self):
-        return [*filter(lambda i: isinstance(i[1], PywrParameterReference), self.__dict__.items())]
+        return [*filter(lambda i: isinstance(i[1], PywrComponentReference), self.__dict__.items())]
 
     @property
     def parameters(self):
@@ -102,6 +100,10 @@ class PywrNode(PywrEntity, HydraDataset):
         rec_insts = filter(lambda a: isinstance(a, PywrRecorder), self.__dict__.values())
         return {f"__{self.name}__:{inst.name}": inst for inst in rec_insts}
 
+    def _attr_is_p_or_r(self, attr):
+        ref = getattr(self, attr)
+        return isinstance(ref, PywrParameter) or isinstance(ref, PywrRecorder)
+
     @property
     def pywr_node(self):
         node = { "name": self.name,
@@ -111,14 +113,21 @@ class PywrNode(PywrEntity, HydraDataset):
         if self.position is not None:
              node.update({"position": self.position.value})
 
-        intrinsics = { name: attr.value for name, attr in self.__dict__.items() if name in self.intrinsic_attrs and not isinstance(getattr(self, name), PywrParameter) }
+        #intrinsics = { name: attr.value for name, attr in self.__dict__.items() if name in self.intrinsic_attrs and not isinstance(getattr(self, name), PywrParameter) }
+        intrinsics = { name: attr.value for name, attr in self.__dict__.items() if name in self.intrinsic_attrs and not self._attr_is_p_or_r(name) }
         param_refs = {}
-        for param_attr in self.parameters.keys():
+        for param_attr in self.parameters:
             node_name, attr_name = parse_reference_key(param_attr)
             param_refs[attr_name] = param_attr
 
+        recorder_refs = {}
+        for rec_attr in self.recorders:
+            node_name, attr_name = parse_reference_key(rec_attr)
+            recorder_refs[attr_name] = rec_attr
+
         node.update(intrinsics)
         node.update(param_refs)
+        node.update(recorder_refs)
 
         return node
 
@@ -223,7 +232,6 @@ class PywrDataReference(PywrEntity, ABC):
                 """ It looks like a Parameter, try to construct it as one... """
                 try:
                     return PywrParameter.ParameterFactory((name, data)) # NB tuple
-                    #return PywrParameterReference(data)
                 except KeyError:
                     """ ...no match as param. maybe recorder?... """
                     return PywrRecorder.RecorderFactory((name, data))
@@ -239,12 +247,12 @@ class PywrDataReference(PywrEntity, ABC):
 
         if isinstance(data, str):
             """ Could be either...
-                    - A reference to a __node__:attr param key
+                    - A reference to a __node__:attr param/rec key
                     - A plain descriptor
             """
             try:
                 elem_name, attr = parse_reference_key(data)
-                return PywrParameterReference(data)
+                return PywrComponentReference(data)
             except ValueError as e:
                 pass
             """ ... it's just a descriptor """
@@ -316,7 +324,7 @@ class PywrDataframeReference(PywrDataReference):
         #return json.dumps(self._value)
         return self._value
 
-class PywrParameterReference(PywrDataReference):
+class PywrComponentReference(PywrDataReference):
     def __init__(self, name):
         super().__init__(name)
         self._value = name

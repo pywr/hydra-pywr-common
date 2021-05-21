@@ -162,7 +162,6 @@ class PywrHydraWriter():
 
         self.initialise_hydra_connection()
         """ Register Hydra attributes """
-        self.network.resolve_parameter_references()
         self.network.resolve_backwards_parameter_references()
         self.network.resolve_recorder_references()
         self.hydra_attributes = self.register_hydra_attributes()
