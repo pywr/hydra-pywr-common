@@ -18,3 +18,14 @@ class HydraDataset():
                     "hidden": 'N'
                   }
         return dataset
+
+class ArbitraryDirectAttrs():
+
+    def add_attrs(self, data):
+        self.intrinsics = set()
+        for attr, val in data.items():
+            setattr(self, attr, val)
+            self.intrinsics.add(attr)
+
+    def get_attr_values(self):
+        return { getattr(self, attr) for attr in self.intrinsics() }

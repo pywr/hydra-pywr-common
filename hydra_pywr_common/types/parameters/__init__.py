@@ -5,6 +5,7 @@ from .constantparameter import PywrConstantParameter
 from .aggregatedparameter import PywrAggregatedParameter
 from .controlcurveinterpolatedparameter import PywrControlCurveInterpolatedParameter
 from .controlcurveindexparameter import PywrControlCurveIndexParameter
+from .controlcurveholdindexparameter import PywrControlCurveHoldIndexParameter
 from .indexedarrayparameter import PywrIndexedArrayParameter
 from .interpolatedvolumeparameter import PywrInterpolatedVolumeParameter
 from .interpolatedflowparameter import PywrInterpolatedFlowParameter

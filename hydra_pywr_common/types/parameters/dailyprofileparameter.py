@@ -1,24 +1,40 @@
 from hydra_pywr_common.types import PywrParameter
-from hydra_pywr_common.lib.utils import(
-    parse_reference_key
-)
+from hydra_pywr_common.types.mixins import ArbitraryDirectAttrs
 
-class PywrDailyProfileParameter(PywrParameter):
+class PywrDailyProfileParameter(PywrParameter, ArbitraryDirectAttrs):
     key = "dailyprofile"
     hydra_data_type = "PYWR_PARAMETER"
 
     def __init__(self, name, data, **kwargs):
         super().__init__(name)
-        self.set_value(data)
+        self.add_attrs(data)
+        #self.set_value(data)
 
     def set_value(self, data):
-        self._value = data["values"]
+        """
+        for attr, val in data.items():
+        if "table" in data:
+            self.table = data["table"]
+            self.column = data["column"]
+        else:
+            self._value = data["values"]
+        """
 
     @property
     def value(self):
-        return { "type": self.key,
-                 "values": self._value
-               }
+        """
+        ret =  { "type": self.key }
+
+        if hasattr(self, "table"):
+            ret.update( { "table": self.table,
+                          "column": self.column
+                        })
+        else:
+            ret.update( {"values": self._value})
+        """
+        ret = self.get_attr_values()
+        ret.update( {"type": self.key} )
+        return ret
 
 
 """

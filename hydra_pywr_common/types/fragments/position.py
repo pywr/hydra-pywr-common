@@ -9,6 +9,12 @@ except TypeError:
     Coord = namedtuple("Coord", ('x', 'y'))
 
 
+"""
+    TODO: Rewrite to use typed *coords* (geo, schematic) and single
+          PywrPosition container of multiple coords
+"""
+
+
 class PywrPosition(Fragment):
     key = "position"
     position_type_map = {}
@@ -42,3 +48,6 @@ class PywrGeographicPosition(PywrPosition):
     @property
     def value(self):
         return { self.key: [ self.x, self.y ] }
+
+# TODO waruikoto
+PywrPosition.position_type_map["schematic"] = PywrGeographicPosition

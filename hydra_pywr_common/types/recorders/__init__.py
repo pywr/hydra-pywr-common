@@ -4,3 +4,4 @@ from .numpyarraynoderecorder import PywrNumpyArrayNodeRecorder
 from .numpyarraystoragerecorder import PywrNumpyArrayStorageRecorder
 from .rollingmeanflownoderecorder import PywrRollingMeanFlowNodeRecorder
 from .flowdurationcurvedeviationrecorder import PywrFlowDurationCurveDeviationRecorder
+from .annualcountindexthresholdrecorder import PywrAnnualCountIndexThresholdRecorder

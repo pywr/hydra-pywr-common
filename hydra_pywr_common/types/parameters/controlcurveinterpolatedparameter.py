@@ -10,16 +10,20 @@ class PywrControlCurveInterpolatedParameter(PywrParameter):
         self.storage_node = data["storage_node"]
         self.control_curves = data["control_curves"]
         self.values = data["values"]
-        self.__recorder__ = data["__recorder__"]
+        if "__recorder__" in data:
+            self.__recorder__ = data["__recorder__"]
 
 
     @property
     def value(self):
-        return { "type": self.key,
-                 "storage_node": self.storage_node,
-                 "control_curves": self.control_curves,
-                 "values": self.values,
-                 "__recorder__": self.__recorder__
-               }
+        ret = { "type": self.key,
+                "storage_node": self.storage_node,
+                "control_curves": self.control_curves,
+                "values": self.values
+              }
+        if hasattr(self, "__recorder__"):
+            ret.update({ "__recorder__": self.__recorder__ })
+
+        return ret
 
 
