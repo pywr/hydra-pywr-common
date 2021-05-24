@@ -48,17 +48,42 @@ class PywrNetwork():
 
     def resolve_parameter_references(self):
         for node in self.nodes.values():
+            #if node.name == "Wansford MRF":
+            #    breakpoint()
             refs = node.unresolved_parameter_references
             for attrname, refinst in refs:
                 try:
                     param = self.parameters[refinst.name]
+                    setattr(node, attrname, param)
+                    #print(f"parameter attr to parameter: {node.name} => a: {attrname} ri.n: {refinst.name}")
                 except KeyError as e:
-                    # No such param
-                    raise
-                setattr(node, attrname, param)
+                    try:
+                        param = self.parameters[refinst.value]
+                        setattr(node, attrname, param)
+                        #print(f"descriptor attr to parameter: {node.name} => a: {attrname} ri.v: {refinst.value}")
+                    except KeyError as e:
+                        #print(f"plain descriptor: {node.name} => a: {attrname} ri.v: {refinst.value}")
+                        pass
 
 
     def resolve_recorder_references(self):
+        for node in self.nodes.values():
+            refs = node.unresolved_parameter_references
+            for attrname, refinst in refs:
+                try:
+                    rec = self.recorders[refinst.name]
+                    setattr(node, attrname, rec)
+                    print(f"recorder attr to recorder: {node.name} => a: {attrname} ri.n: {refinst.name}")
+                except KeyError as e:
+                    try:
+                        param = self.recorders[refinst.value]
+                        setattr(node, attrname, param)
+                        print(f"descriptor attr to recorder: {node.name} => a: {attrname} ri.v: {refinst.value}")
+                    except KeyError as e:
+                        print(f"plain descriptor: {node.name} => a: {attrname} ri.v: {refinst.value}")
+
+
+    def resolve_backwards_recorder_references(self):
         for noderef, rec in self.recorders.items():
             nodename, attrname = parse_reference_key(noderef)
             try:
@@ -66,8 +91,10 @@ class PywrNetwork():
             except KeyError as e:
                 raise
             setattr(node, attrname, rec)
+            print(f"recorder added: {node.name} => a: {attrname}")
             if attrname not in node.intrinsic_attrs:
                 node.intrinsic_attrs.append(attrname)
+
 
     def resolve_backwards_parameter_references(self):
         for noderef, param in self.parameters.items():
@@ -76,12 +103,47 @@ class PywrNetwork():
                 node = self.nodes[nodename]
             except KeyError as e:
                 raise
-            """
-            if hasattr(node, attrname):
-                #print(f"Node {node.name} already has {attrname} attr for <{param.key}>")
-                continue
-            """
             setattr(node, attrname, param)
             if attrname not in node.intrinsic_attrs:
                 node.intrinsic_attrs.append(attrname)
-            #print(f"Added param <{param.key}> to {node.name} as {attrname}")
+            print(f"Added param <{param.key}> to {node.name} as {attrname}")
+
+
+    def speculative_forward_parameter_references(self):
+        nodes = reversed(sorted(self.nodes.values(), key=len))
+        seen = set()
+        for node in nodes:
+            import re
+            from string import whitespace
+            tr_tab = { ord(c): '.' for c in whitespace }
+            p = re.compile(node.name.translate(tr_tab))
+            node_params = {}
+            node_recorders = {}
+            for k,v in self.parameters.items():
+                if m := p.match(k):
+                    if v in seen:
+                        continue
+                    node_params[k[m.end()+1:]] = v
+                    seen.add(v)
+
+            for k,v in self.recorders.items():
+                if m := p.match(k):
+                    if v in seen:
+                        continue
+                    node_recorders[k[m.end()+1:]] = v
+                    seen.add(v)
+
+            for attr, param in node_params.items():
+                setattr(node, attr, param)
+                print(f"[sfr p] {node.name} a: {attr} => {param}")
+                if attr not in node.intrinsic_attrs:
+                    node.intrinsic_attrs.append(attr)
+
+            for attr, rec in node_recorders.items():
+                setattr(node, attr, rec)
+                print(f"[sfr r] {node.name} a: {attr} => {rec}")
+                if attr not in node.intrinsic_attrs:
+                    node.intrinsic_attrs.append(attr)
+
+
+

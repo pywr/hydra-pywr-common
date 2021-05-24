@@ -26,7 +26,8 @@ class PywrDataframeParameter(PywrParameter, ArbitraryDirectAttrs):
 
     @property
     def value(self):
-        if hasattr(self, "data"):
+        #if hasattr(self, "data"):
+        if hasattr(self, "_value"):
             return { "type": self.key,
                      "data": { self.basekey: self._value},
                      "pandas_kwargs": self.pandas_kwargs

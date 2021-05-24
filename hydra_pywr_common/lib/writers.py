@@ -162,8 +162,11 @@ class PywrHydraWriter():
 
         self.initialise_hydra_connection()
         """ Register Hydra attributes """
-        self.network.resolve_backwards_parameter_references()
+        self.network.resolve_parameter_references()
+        #self.network.resolve_backwards_parameter_references()
         self.network.resolve_recorder_references()
+        #self.network.resolve_backwards_recorder_references()
+        self.network.speculative_forward_parameter_references()
         self.hydra_attributes = self.register_hydra_attributes()
         #print(self.hydra_attributes)
 
@@ -206,6 +209,7 @@ class PywrHydraWriter():
         """ Pass network to Hydra"""
         #pprint(hydra_network)
         #pprint(network_hydratype)
+        breakpoint()
         self.hydra.add_network(hydra_network)
 
 
@@ -228,6 +232,8 @@ class PywrHydraWriter():
 
     def make_resource_attr_and_scenario(self, element, attr_name, datatype=None):
         local_attr_id = self.get_next_attr_id()
+        #if local_attr_id == -139:
+        #    breakpoint()
         resource_scenario = self.make_resource_scenario(element, attr_name, local_attr_id, datatype)
         resource_attribute = { "id": local_attr_id,
                                "attr_id": self.get_hydra_attrid_by_name(attr_name),
@@ -270,7 +276,7 @@ class PywrHydraWriter():
             hydra_node["attributes"] = resource_attributes
             hydra_node["types"] = [{ "id": self.get_typeid_by_name(node.key) }]
 
-            if hasattr(node, "position"):
+            if hasattr(node, "position") and node.position is not None:
                 hydra_node["x"] = node.position.x
                 hydra_node["y"] = node.position.y
 

@@ -43,7 +43,8 @@ def _elem(elem, *attrs):
 
 if __name__ == "__main__":
     #infile, projection = "/home/paul/data/pywr/Tana.newparam.max_flow_series_with_catchment.json", "EPSG:4326"
-    infile, projection = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.1.4938.NEW.json", "EPSG:27700"
+    infile, projection = "/home/paul/data/pywr/ruthamford-historic.json", "EPSG:27700"
+    #infile, projection = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.1.4938.NEW.json", "EPSG:27700"
     #infile, projection = "/mnt/xfr/Ruthamford.Model.v1.08.Wansford.tests.April.2021.adding.Feland.Reservoir.aggregate.json", "EPSG:27700"
 
     """

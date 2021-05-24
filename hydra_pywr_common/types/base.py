@@ -54,12 +54,16 @@ class PywrNode(PywrEntity, HydraDataset):
         self.name = data["name"]
         location = data.get("position")
         self.position = PywrPosition.PywrPositionFactory(location) if location else None
-        self.comment = data.get("comment", "")
+        if "comment" in data:
+            self.comment = data.get("comment")
         self.intrinsic_attrs = []
         #if self.name == "Gitaru":
         #    print(data)
         #    exit(55)
         self.parse_data(data)
+
+    def __len__(self):
+        return len(self.name)
 
     @staticmethod
     def NodeFactory(data):
@@ -88,7 +92,8 @@ class PywrNode(PywrEntity, HydraDataset):
 
     @property
     def unresolved_parameter_references(self):
-        return [*filter(lambda i: isinstance(i[1], PywrComponentReference), self.__dict__.items())]
+        return [*filter(lambda i: isinstance(i[1], PywrDescriptorReference), self.__dict__.items())]
+        #return [*filter(lambda i: isinstance(i[1], PywrComponentReference), self.__dict__.items())]
 
     @property
     def parameters(self):
@@ -102,15 +107,16 @@ class PywrNode(PywrEntity, HydraDataset):
 
     def _attr_is_p_or_r(self, attr):
         ref = getattr(self, attr)
-        return isinstance(ref, PywrParameter) or isinstance(ref, PywrRecorder)
+        return isinstance(ref, (PywrParameter, PywrRecorder))
 
     @property
     def pywr_node(self):
-        node = { "name": self.name,
-                 "comment": self.comment
-               }
+        node = { "name": self.name}
 
-        if self.position is not None:
+        if hasattr(self, "comment") and self.comment is not None:
+            node.update({"comment": self.comment})
+
+        if hasattr(self, "position") and self.position is not None:
              node.update({"position": self.position.value})
 
         #intrinsics = { name: attr.value for name, attr in self.__dict__.items() if name in self.intrinsic_attrs and not isinstance(getattr(self, name), PywrParameter) }
@@ -188,6 +194,7 @@ class PywrParameter(PywrEntity):
         return instcls(*arg)
 
     def __init__(self, name):
+        super().__init__()
         self.name = name
 
     def attr_dataset(self, attr_name):
@@ -250,12 +257,6 @@ class PywrDataReference(PywrEntity, ABC):
                     - A reference to a __node__:attr param/rec key
                     - A plain descriptor
             """
-            try:
-                elem_name, attr = parse_reference_key(data)
-                return PywrComponentReference(data)
-            except ValueError as e:
-                pass
-            """ ... it's just a descriptor """
             return PywrDescriptorReference(name, data)
 
         # Handle unparseable case

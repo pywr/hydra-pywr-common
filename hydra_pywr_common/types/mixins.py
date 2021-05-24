@@ -20,12 +20,14 @@ class HydraDataset():
         return dataset
 
 class ArbitraryDirectAttrs():
+    def __init__(self):
+        super().__init__()
+        self.intrinsics = set()
 
     def add_attrs(self, data):
-        self.intrinsics = set()
         for attr, val in data.items():
             setattr(self, attr, val)
             self.intrinsics.add(attr)
 
     def get_attr_values(self):
-        return { getattr(self, attr) for attr in self.intrinsics() }
+        return { attr: getattr(self, attr) for attr in self.intrinsics }
