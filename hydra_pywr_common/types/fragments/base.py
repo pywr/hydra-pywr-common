@@ -1,5 +1,6 @@
 from hydra_pywr_common.types.mixins import HydraDataset
 
+
 class Fragment():
     """ Base of all Pywr Fragments """
     def __init__(self):
@@ -17,3 +18,9 @@ class Fragment():
                     "hidden": 'N'
                   }
         return dataset
+
+
+    def set_intrinsic_as(self, cls, attr_name, data):
+        attr = cls(attr_name, data.pop(attr_name))
+        setattr(self, attr_name, attr)
+        self.intrinsic_attrs.append(attr_name)

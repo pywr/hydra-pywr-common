@@ -1,53 +1,59 @@
-from collections import namedtuple
-
 from .base import Fragment
 
-try:
-    """ Py>=3.7 required for default kwargs to namedtuple """
-    Coord = namedtuple("Coord", ('x', 'y'), defaults=(0.0, 0.0))
-except TypeError:
-    Coord = namedtuple("Coord", ('x', 'y'))
 
-
-"""
-    TODO: Rewrite to use typed *coords* (geo, schematic) and single
-          PywrPosition container of multiple coords
-"""
-
-
-class PywrPosition(Fragment):
-    key = "position"
-    position_type_map = {}
+class Coordinate():
+    coordinate_type_map = {}
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        PywrPosition.position_type_map[cls.key] = cls
+        Coordinate.coordinate_type_map[cls.key] = cls
 
     @staticmethod
-    def PywrPositionFactory(data):
+    def CoordinateFactory(data):
         instkey = next(iter(data))
-        instcls = PywrPosition.position_type_map[instkey]
-        return instcls(data[instkey])
+        instcls = Coordinate.coordinate_type_map[instkey]
+        return instcls(*data[instkey])
 
 
-class PywrGeographicPosition(PywrPosition):
+class GeographicCoordinate(Coordinate):
     key = "geographic"
-
-    def __init__(self, data):
+    def __init__(self, x, y):
         super().__init__()
-        self.coord = Coord(*data)
-
-    @property
-    def y(self):
-        return self.coord.y
-
-    @property
-    def x(self):
-        return self.coord.x
+        self.x = x
+        self.y = y
 
     @property
     def value(self):
         return { self.key: [ self.x, self.y ] }
 
-# TODO waruikoto
-PywrPosition.position_type_map["schematic"] = PywrGeographicPosition
+
+class SchematicCoordinate(Coordinate):
+    key = "schematic"
+    def __init__(self, x, y):
+        super().__init__()
+        self.x = x
+        self.y = y
+
+    @property
+    def value(self):
+        return { self.key: [ self.x, self.y ] }
+
+
+class PywrPosition(Fragment):
+    key = "position"
+
+    def __init__(self, data):
+        super().__init__()
+        self.coordinates = []
+
+        for key, data in data.items():
+            c = Coordinate.CoordinateFactory({key: data})
+            self.coordinates.append(c)
+
+    @property
+    def value(self):
+        val = {}
+        #val = { c.key: c.value for c in self.coordinates }
+        for c in self.coordinates:
+            val.update(c.value)
+        return val

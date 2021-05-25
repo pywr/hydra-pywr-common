@@ -16,7 +16,8 @@ from hydra_pywr_common.lib.readers import(
 
 from .fragments.network import(
     Timestepper,
-    Metadata
+    Metadata,
+    Table
 )
 
 
@@ -25,6 +26,7 @@ class PywrNetwork():
     def __init__(self, reader):
         self.metadata = reader.metadata
         self.timestepper = reader.timestepper
+        self.tables = reader.tables
         self.nodes = reader.nodes
         self.edges = reader.edges
         self.parameters = reader.parameters
@@ -48,8 +50,6 @@ class PywrNetwork():
 
     def resolve_parameter_references(self):
         for node in self.nodes.values():
-            #if node.name == "Wansford MRF":
-            #    breakpoint()
             refs = node.unresolved_parameter_references
             for attrname, refinst in refs:
                 try:
@@ -109,41 +109,28 @@ class PywrNetwork():
             print(f"Added param <{param.key}> to {node.name} as {attrname}")
 
 
-    def speculative_forward_parameter_references(self):
+    def speculative_forward_references(self):
+        import re
+        from string import whitespace
         nodes = reversed(sorted(self.nodes.values(), key=len))
         seen = set()
+
         for node in nodes:
-            import re
-            from string import whitespace
             tr_tab = { ord(c): '.' for c in whitespace }
             p = re.compile(node.name.translate(tr_tab))
-            node_params = {}
-            node_recorders = {}
-            for k,v in self.parameters.items():
+            node_refs = {}
+            references = {**self.parameters, **self.recorders}
+
+            for k,v in references.items():
                 if m := p.match(k):
                     if v in seen:
                         continue
-                    node_params[k[m.end()+1:]] = v
+                    node_refs[k[m.end()+1:]] = v
                     seen.add(v)
 
-            for k,v in self.recorders.items():
-                if m := p.match(k):
-                    if v in seen:
-                        continue
-                    node_recorders[k[m.end()+1:]] = v
-                    seen.add(v)
-
-            for attr, param in node_params.items():
-                setattr(node, attr, param)
-                print(f"[sfr p] {node.name} a: {attr} => {param}")
+            for attr, ref in node_refs.items():
+                setattr(node, attr, ref)
+                print(f"[sfr] {node.name} a: {attr} => {ref}")
                 if attr not in node.intrinsic_attrs:
                     node.intrinsic_attrs.append(attr)
-
-            for attr, rec in node_recorders.items():
-                setattr(node, attr, rec)
-                print(f"[sfr r] {node.name} a: {attr} => {rec}")
-                if attr not in node.intrinsic_attrs:
-                    node.intrinsic_attrs.append(attr)
-
-
 

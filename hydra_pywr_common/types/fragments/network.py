@@ -1,41 +1,16 @@
-import json
-
-from hydra_pywr_common.types.base import(
-    PywrDataReference
-)
-
 from .base import Fragment
+from hydra_pywr_common.types.base import(
+    PywrDataReference,
+    PywrDescriptorReference
+)
 
 class Timestepper(Fragment):
     def __init__(self, data):
         super().__init__()
+        #self.timestep = PywrDescriptorReference("timestep", data.pop("timestep"))
+        self.set_intrinsic_as(PywrDescriptorReference, "timestep", data)
         self.parse_data(data)
 
-        """
-        self._start = datetime.datetime.fromisoformat(data["start"])
-        self._end = datetime.datetime.fromisoformat(data["end"])
-        self._timestep = int(data["timestep"])   # int only ???
-        """
-
-    """
-        self._start = PywrDataReference.ReferenceFactory("start", data["start"])
-        self._end = PywrDataReference.ReferenceFactory("end", data["end"])
-        self._timestep = PywrDataReference.ReferenceFactory("timestep", data["timestep"])
-
-    @property
-    def start(self):
-        return self._start.value
-
-    @property
-    def end(self):
-        return self._end.value
-
-    @property
-    def timestep(self):
-        #return json.loads(self._timestep.value)
-        return self._timestep.value
-
-    """
     def parse_data(self, data):
         for attrname, value in data.items():
             typed_attr = PywrDataReference.ReferenceFactory(attrname, value)
@@ -43,35 +18,26 @@ class Timestepper(Fragment):
             self.intrinsic_attrs.append(attrname)
 
 
-
-
 class Metadata(Fragment):
     def __init__(self, data):
         super().__init__()
         self.parse_data(data)
 
-    """
-        self._title = PywrDataReference.ReferenceFactory("title", data["title"])
-        self._description = PywrDataReference.ReferenceFactory("description", data.get("description", ""))
+    def parse_data(self, data):
+        for attrname, value in data.items():
+            typed_attr = PywrDataReference.ReferenceFactory(attrname, value)
+            setattr(self, attrname, typed_attr)
+            self.intrinsic_attrs.append(attrname)
 
-        if "projection" in data:
-            self.projection = PywrDataReference.ReferenceFactory("projection", data.get("projection", ""))
 
-    @property
-    def title(self):
-        return self._title.value
-
-    @property
-    def description(self):
-        return self._description.value
-
-    @property
-    def projection(self):
-        try:
-            return self._projection.value
-        except AttributeError:
-            return None
-    """
+class Table(Fragment):
+    def __init__(self, data):
+        super().__init__()
+        #self.index_col = PywrDescriptorReference("index_col", data.pop("index_col"))
+        #self.header = PywrDescriptorReference("header", data.pop("header"))
+        self.set_intrinsic_as(PywrDescriptorReference, "index_col", data)
+        self.set_intrinsic_as(PywrDescriptorReference, "header", data)
+        self.parse_data(data)
 
     def parse_data(self, data):
         for attrname, value in data.items():

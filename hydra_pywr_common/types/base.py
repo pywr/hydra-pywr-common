@@ -25,21 +25,6 @@ class PywrEntity():
     """
     pass
 
-"""
-class HydraDataset():
-
-    def attr_dataset(self, attr_name):
-        attr = getattr(self, attr_name)
-        dataset = { "name":  attr_name,
-                    "type":  attr.hydra_data_type,
-                    "value": attr.value,
-                    "metadata": "{}",
-                    "unit": "-",
-                    "hidden": 'N'
-                  }
-        return dataset
-"""
-
 
 class PywrNode(PywrEntity, HydraDataset):
     node_type_map = {}
@@ -50,16 +35,12 @@ class PywrNode(PywrEntity, HydraDataset):
         PywrNode.node_type_map[cls.key] = cls
 
     def __init__(self, data, **kwargs):
-        #print(data)
         self.name = data["name"]
         location = data.get("position")
-        self.position = PywrPosition.PywrPositionFactory(location) if location else None
+        self.position = PywrPosition(location) if location else None
         if "comment" in data:
             self.comment = data.get("comment")
         self.intrinsic_attrs = []
-        #if self.name == "Gitaru":
-        #    print(data)
-        #    exit(55)
         self.parse_data(data)
 
     def __len__(self):
@@ -87,13 +68,12 @@ class PywrNode(PywrEntity, HydraDataset):
 
     @property
     def has_unresolved_parameter_reference(self):
-        refs = filter(lambda a: isinstance(a, PywrComponentReference), self.__dict__.values())
+        refs = filter(lambda a: isinstance(a, PywrDescriptorReference), self.__dict__.values())
         return any(refs)
 
     @property
     def unresolved_parameter_references(self):
         return [*filter(lambda i: isinstance(i[1], PywrDescriptorReference), self.__dict__.items())]
-        #return [*filter(lambda i: isinstance(i[1], PywrComponentReference), self.__dict__.items())]
 
     @property
     def parameters(self):
@@ -119,7 +99,6 @@ class PywrNode(PywrEntity, HydraDataset):
         if hasattr(self, "position") and self.position is not None:
              node.update({"position": self.position.value})
 
-        #intrinsics = { name: attr.value for name, attr in self.__dict__.items() if name in self.intrinsic_attrs and not isinstance(getattr(self, name), PywrParameter) }
         intrinsics = { name: attr.value for name, attr in self.__dict__.items() if name in self.intrinsic_attrs and not self._attr_is_p_or_r(name) }
         param_refs = {}
         for param_attr in self.parameters:
@@ -142,15 +121,8 @@ class PywrNode(PywrEntity, HydraDataset):
         return json.dumps(self.pywr_node)
 
 
-
-
 class PywrEdge(PywrEntity):
     key = "edge"
-    """
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        edge_types.append(cls)
-    """
 
     def __init__(self, data):
         super().__init__()
@@ -181,7 +153,6 @@ class PywrEdge(PywrEntity):
 
 
 class PywrParameter(PywrEntity):
-    #hydra_data_type = "PYWR_PARAMETER"
     parameter_type_map = {}
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -200,7 +171,6 @@ class PywrParameter(PywrEntity):
     def attr_dataset(self, attr_name):
         attr = getattr(self, attr_name)
         value = attr.value
-        #del value["type"]
         dataset = { "name":  attr_name,
                     "type":  attr.hydra_data_type,
                     "value": json.dumps(value),
@@ -232,8 +202,6 @@ class PywrDataReference(PywrEntity, ABC):
 
     @staticmethod
     def ReferenceFactory(name, data):
-        #print(f"ReferenceFactory {name} {type(data)}")
-        #print(data)
         if isinstance(data, dict):
             if data.get("type"):
                 """ It looks like a Parameter, try to construct it as one... """
@@ -248,6 +216,9 @@ class PywrDataReference(PywrEntity, ABC):
 
         if isinstance(data, list):
             return PywrArrayReference(name, data)
+
+        if isinstance(data, bool):
+            return PywrDescriptorReference(name, data)
 
         if isinstance(data, numbers.Number):
             return PywrScalarReference(name, data)

@@ -13,7 +13,8 @@ from hydra_pywr_common.lib.utils import(
 
 from hydra_pywr_common.types.fragments.network import(
     Timestepper,
-    Metadata
+    Metadata,
+    Table
 )
 
 class PywrJsonReader():
@@ -28,6 +29,7 @@ class PywrJsonReader():
     def build_network_from_json(self):
         self.timestepper = Timestepper(self.src["timestepper"])
         self.metadata = Metadata(self.src["metadata"])
+        self.tables = self.build_tables()
 
         self.parameters = self.build_parameters()
         self.recorders = self.build_recorders()
@@ -74,6 +76,16 @@ class PywrJsonReader():
                 recorders[r.name] = r
 
         return recorders
+
+    def build_tables(self):
+        tables = {}
+        src_tables = self.src.get("tables")
+        if src_tables:
+            for name, table in src_tables.items():
+                t = Table(table)
+                tables[name] = t
+
+        return tables
 
 
 class PywrHydraReader():

@@ -89,7 +89,8 @@ def make_hydra_attr(name, desc=None):
 """
 class PywrHydraWriter():
 
-    default_map_projection = "EPSG:4326"
+    #default_map_projection = "EPSG:4326"
+    default_map_projection = None
 
     def __init__(self, network,
                        hostname=None,
@@ -159,6 +160,10 @@ class PywrHydraWriter():
 
 
     def build_hydra_network(self, projection=None):
+        if projection:
+            self.projection = projection
+        else:
+            self.projection = self.network.metadata.projection.value if hasattr(self.network.metadata, "projection") else PywrHydraWriter.default_map_projection
 
         self.initialise_hydra_connection()
         """ Register Hydra attributes """
@@ -166,7 +171,7 @@ class PywrHydraWriter():
         #self.network.resolve_backwards_parameter_references()
         self.network.resolve_recorder_references()
         #self.network.resolve_backwards_recorder_references()
-        self.network.speculative_forward_parameter_references()
+        self.network.speculative_forward_references()
         self.hydra_attributes = self.register_hydra_attributes()
         #print(self.hydra_attributes)
 
@@ -188,10 +193,6 @@ class PywrHydraWriter():
         network_name = self.network.metadata.title.value
         network_hydratype = self.get_hydra_network_type()
         network_description = self.network.metadata.description.value
-        if projection:
-            map_projection = projection
-        else:
-            map_projection = self.network.metadata.projection.value if hasattr(self.network.metadata, "projection") else PywrHydraWriter.default_map_projection
 
         hydra_network = {
             "name": network_name,
@@ -201,15 +202,14 @@ class PywrHydraWriter():
             "links": self.hydra_links,
             "layout": None,
             "scenarios": [baseline_scenario],
-            "projection": map_projection,
+            "projection": self.projection,
             "attributes": self.network_attributes,
             "types": [{ "id": network_hydratype["id"] }]
         }
 
         """ Pass network to Hydra"""
         #pprint(hydra_network)
-        #pprint(network_hydratype)
-        breakpoint()
+        #breakpoint()
         self.hydra.add_network(hydra_network)
 
 
@@ -224,6 +224,10 @@ class PywrHydraWriter():
 
         for meta_attr in self.network.metadata.intrinsic_attrs:
             pending_attrs.add(f"metadata.{meta_attr}")
+
+        for table_name, table in self.network.tables.items():
+            for attr_name in table.intrinsic_attrs:
+                pending_attrs.add(f"tbl_{table_name}.{attr_name}")
 
         attrs = [ make_hydra_attr(attr_name) for attr_name in pending_attrs - excluded_attrs ]
 
@@ -277,8 +281,11 @@ class PywrHydraWriter():
             hydra_node["types"] = [{ "id": self.get_typeid_by_name(node.key) }]
 
             if hasattr(node, "position") and node.position is not None:
-                hydra_node["x"] = node.position.x
-                hydra_node["y"] = node.position.y
+                key = "geographic" if self.projection else "schematic"
+                proj_data = node.position.value
+                x, y = proj_data.get(key, (0,0))
+                hydra_node["x"] = x
+                hydra_node["y"] = y
 
             hydra_nodes.append(hydra_node)
 
@@ -299,6 +306,12 @@ class PywrHydraWriter():
             ra, rs = self.make_resource_attr_and_scenario(self.network.metadata, f"metadata.{attr_name}")
             hydra_network_attrs.append(ra)
             resource_scenarios.append(rs)
+
+        for table_name, table in self.network.tables.items():
+            for attr_name in table.intrinsic_attrs:
+                ra, rs = self.make_resource_attr_and_scenario(table, f"tbl_{table_name}.{attr_name}")
+                hydra_network_attrs.append(ra)
+                resource_scenarios.append(rs)
 
         return hydra_network_attrs, resource_scenarios
 
