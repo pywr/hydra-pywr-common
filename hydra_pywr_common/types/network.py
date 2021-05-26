@@ -117,7 +117,7 @@ class PywrNetwork():
 
         for node in nodes:
             tr_tab = { ord(c): '.' for c in whitespace }
-            p = re.compile(node.name.translate(tr_tab))
+            p = re.compile(node.name.translate(tr_tab)+"_")
             node_refs = {}
             references = {**self.parameters, **self.recorders}
 
@@ -125,7 +125,7 @@ class PywrNetwork():
                 if m := p.match(k):
                     if v in seen:
                         continue
-                    node_refs[k[m.end()+1:]] = v
+                    node_refs[k[m.end():]] = v
                     seen.add(v)
 
             for attr, ref in node_refs.items():

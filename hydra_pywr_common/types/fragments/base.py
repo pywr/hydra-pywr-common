@@ -24,3 +24,7 @@ class Fragment():
         attr = cls(attr_name, data.pop(attr_name))
         setattr(self, attr_name, attr)
         self.intrinsic_attrs.append(attr_name)
+
+
+    def get_values(self):
+        return { attr_name: getattr(self, attr_name).value for attr_name in self.intrinsic_attrs }

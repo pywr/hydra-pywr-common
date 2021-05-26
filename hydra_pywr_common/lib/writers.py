@@ -37,6 +37,8 @@ class PywrJsonWriter():
         output["recorders"] = self.process_recorders()
         output["nodes"] = self.process_nodes()
         output["edges"] = self.process_edges()
+        if self.network.tables:
+            output["tables"] = self.process_tables()
 
         return output
 
@@ -47,10 +49,13 @@ class PywrJsonWriter():
 
     def process_timestepper(self):
         timestepper = self.network.timestepper
+        return timestepper.get_values()
+        """
         return { "start": timestepper.start.value,
                  "end": timestepper.end.value,
                  "timestep": timestepper.timestep.value
                }
+        """
 
     def process_metadata(self):
         metadata = self.network.metadata
@@ -76,6 +81,10 @@ class PywrJsonWriter():
     def process_edges(self):
         edges = self.network.edges
         return [ edge.value for edge in edges.values() ]
+
+    def process_tables(self):
+        tables = self.network.tables
+        return { table_name: table.get_values() for table_name, table in tables.items() }
 
 
 
@@ -168,9 +177,12 @@ class PywrHydraWriter():
         self.initialise_hydra_connection()
         """ Register Hydra attributes """
         self.network.resolve_parameter_references()
-        #self.network.resolve_backwards_parameter_references()
         self.network.resolve_recorder_references()
-        #self.network.resolve_backwards_recorder_references()
+        try:
+            self.network.resolve_backwards_parameter_references()
+            self.network.resolve_backwards_recorder_references()
+        except:
+            pass
         self.network.speculative_forward_references()
         self.hydra_attributes = self.register_hydra_attributes()
         #print(self.hydra_attributes)
