@@ -47,6 +47,9 @@ class PywrNetwork():
         reader = PywrHydraReader(hydra_net)
         return cls(reader)
 
+    @property
+    def title(self):
+        return self.metadata.title.value
 
     def resolve_parameter_references(self):
         for node in self.nodes.values():
