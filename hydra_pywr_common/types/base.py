@@ -111,8 +111,8 @@ class PywrNode(PywrEntity, HydraDataset):
             recorder_refs[attr_name] = rec_attr
 
         node.update(intrinsics)
-        node.update(param_refs)
-        node.update(recorder_refs)
+        #node.update(param_refs)
+        #node.update(recorder_refs)
 
         return node
 

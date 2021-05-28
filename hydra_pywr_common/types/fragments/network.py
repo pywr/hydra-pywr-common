@@ -7,8 +7,6 @@ from hydra_pywr_common.types.base import(
 class Timestepper(Fragment):
     def __init__(self, data):
         super().__init__()
-        #self.timestep = PywrDescriptorReference("timestep", data.pop("timestep"))
-        #self.set_intrinsic_as(PywrDescriptorReference, "timestep", data)
         self.parse_data(data)
 
     def parse_data(self, data):
@@ -19,7 +17,6 @@ class Timestepper(Fragment):
 
     """ Override base get_values to intify timestep """
     def get_values(self):
-        return { attr_name: getattr(self, attr_name).value for attr_name in self.intrinsic_attrs }
         values = super().get_values()
         timestep = values.get("timestep")
         try:
@@ -27,6 +24,7 @@ class Timestepper(Fragment):
         except ValueError:
             ts_val = timestep
         values["timestep"] = ts_val
+        return values
 
 
 class Metadata(Fragment):
@@ -44,8 +42,6 @@ class Metadata(Fragment):
 class Table(Fragment):
     def __init__(self, data):
         super().__init__()
-        #self.index_col = PywrDescriptorReference("index_col", data.pop("index_col"))
-        #self.header = PywrDescriptorReference("header", data.pop("header"))
         self.set_intrinsic_as(PywrDescriptorReference, "index_col", data)
         self.set_intrinsic_as(PywrDescriptorReference, "header", data)
         self.parse_data(data)
@@ -55,3 +51,26 @@ class Table(Fragment):
             typed_attr = PywrDataReference.ReferenceFactory(attrname, value)
             setattr(self, attrname, typed_attr)
             self.intrinsic_attrs.append(attrname)
+
+    """ Override base get_values to force types """
+    def get_values(self):
+        values = super().get_values()
+        for attr in ("index_col", "header"):
+            if attr not in values:
+                continue
+            val = values.get(attr)
+            try:
+                t_val = int(float(val))
+            except ValueError:
+                t_val = val
+            values[attr] = t_val
+
+        if "parse_dates" in values:
+            parse_dates = values.get("parse_dates")
+            try:
+                t_val = parse_dates == "True"
+            except ValueError:
+                t_val = timestep
+            values["parse_dates"] = t_val
+
+        return values

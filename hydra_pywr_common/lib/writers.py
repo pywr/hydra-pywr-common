@@ -50,12 +50,6 @@ class PywrJsonWriter():
     def process_timestepper(self):
         timestepper = self.network.timestepper
         return timestepper.get_values()
-        """
-        return { "start": timestepper.start.value,
-                 "end": timestepper.end.value,
-                 "timestep": timestepper.timestep.value
-               }
-        """
 
     def process_metadata(self):
         metadata = self.network.metadata
@@ -248,8 +242,6 @@ class PywrHydraWriter():
 
     def make_resource_attr_and_scenario(self, element, attr_name, datatype=None):
         local_attr_id = self.get_next_attr_id()
-        #if local_attr_id == -139:
-        #    breakpoint()
         resource_scenario = self.make_resource_scenario(element, attr_name, local_attr_id, datatype)
         resource_attribute = { "id": local_attr_id,
                                "attr_id": self.get_hydra_attrid_by_name(attr_name),
