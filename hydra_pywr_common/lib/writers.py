@@ -1,23 +1,5 @@
 import json
 
-from hydra_pywr_common.types.base import(
-    PywrNode,
-    PywrParameter,
-    PywrRecorder,
-    PywrEdge
-)
-
-from hydra_pywr_common.lib.utils import(
-    parse_reference_key
-)
-
-from hydra_pywr_common.types.fragments.network import(
-    Timestepper,
-    Metadata
-)
-
-from hydra_pywr_common.types.network import PywrNetwork
-
 
 """
     PywrNetwork => Pywr_json
@@ -91,7 +73,6 @@ def make_hydra_attr(name, desc=None):
 """
 class PywrHydraWriter():
 
-    #default_map_projection = "EPSG:4326"
     default_map_projection = None
 
     def __init__(self, network,
@@ -270,6 +251,8 @@ class PywrHydraWriter():
             hydra_node["resource_type"] = "NODE"
             hydra_node["id"] = self.get_next_node_id()
             hydra_node["name"] = node.name
+            if hasattr(node, "comment"):
+                hydra_node["description"] = node.comment
             hydra_node["layout"] = {}
             hydra_node["attributes"] = resource_attributes
             hydra_node["types"] = [{ "id": self.get_typeid_by_name(node.key) }]

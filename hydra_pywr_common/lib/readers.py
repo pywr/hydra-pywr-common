@@ -7,10 +7,6 @@ from hydra_pywr_common.types.base import(
     PywrEdge
 )
 
-from hydra_pywr_common.lib.utils import(
-    parse_reference_key
-)
-
 from hydra_pywr_common.types.fragments.network import(
     Timestepper,
     Metadata,

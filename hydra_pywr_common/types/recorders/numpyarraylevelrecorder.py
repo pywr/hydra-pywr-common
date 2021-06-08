@@ -1,6 +1,5 @@
 from hydra_pywr_common.types import(
-    PywrRecorder,
-    PywrDataReference
+    PywrRecorder
 )
 
 class PywrNumpyArrayLevelRecorder(PywrRecorder):

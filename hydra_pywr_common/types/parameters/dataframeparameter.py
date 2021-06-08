@@ -1,4 +1,3 @@
-import pandas as pd
 from hydra_pywr_common.types import PywrParameter
 from hydra_pywr_common.types.mixins import ArbitraryDirectAttrs
 
@@ -12,7 +11,6 @@ class PywrDataframeParameter(PywrParameter, ArbitraryDirectAttrs):
         if "data" in argdata:
             data = argdata.get("data")
             self.basekey = next(iter(data))  # The first key in data dict
-            #print(f"{basekey=} {name=}")
             series = data[self.basekey]
             self.set_value(series)
             self.pandas_kwargs = argdata.get("pandas_kwargs", {})
@@ -21,12 +19,10 @@ class PywrDataframeParameter(PywrParameter, ArbitraryDirectAttrs):
 
 
     def set_value(self, data):
-        #self._value = pd.DataFrame.from_dict(data, orient="index")
         self._value = data
 
     @property
     def value(self):
-        #if hasattr(self, "data"):
         if hasattr(self, "_value"):
             return { "type": self.key,
                      "data": { self.basekey: self._value},

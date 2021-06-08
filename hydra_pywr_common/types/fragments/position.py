@@ -53,7 +53,6 @@ class PywrPosition(Fragment):
     @property
     def value(self):
         val = {}
-        #val = { c.key: c.value for c in self.coordinates }
         for c in self.coordinates:
             val.update(c.value)
         return val

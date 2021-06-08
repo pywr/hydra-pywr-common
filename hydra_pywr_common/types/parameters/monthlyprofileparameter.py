@@ -1,7 +1,4 @@
 from hydra_pywr_common.types import PywrParameter
-from hydra_pywr_common.lib.utils import(
-    parse_reference_key
-)
 
 class PywrMonthlyProfileParameter(PywrParameter):
     key = "monthlyprofileparameter"

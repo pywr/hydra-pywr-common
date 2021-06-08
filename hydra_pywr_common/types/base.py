@@ -297,7 +297,6 @@ class PywrDataframeReference(PywrDataReference):
 
     @property
     def value(self):
-        #return json.dumps(self._value)
         return self._value
 
 class PywrComponentReference(PywrDataReference):

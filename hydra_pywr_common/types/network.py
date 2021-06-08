@@ -1,23 +1,6 @@
-from hydra_pywr_common.types.base import(
-    PywrNode,
-    PywrParameter,
-    PywrRecorder,
-    PywrEdge
-)
-
-from hydra_pywr_common.lib.utils import(
-    parse_reference_key
-)
-
 from hydra_pywr_common.lib.readers import(
     PywrJsonReader,
     PywrHydraReader
-)
-
-from .fragments.network import(
-    Timestepper,
-    Metadata,
-    Table
 )
 
 
@@ -31,9 +14,6 @@ class PywrNetwork():
         self.edges = reader.edges
         self.parameters = reader.parameters
         self.recorders = reader.recorders
-
-        #self.resolve_parameter_references()
-        #self.resolve_recorder_references()
 
 
     @classmethod

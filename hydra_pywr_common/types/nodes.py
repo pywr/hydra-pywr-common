@@ -1,19 +1,6 @@
 from .base import(
     PywrNode,
-    PywrEdge,
-    PywrParameter,
-    PywrRecorder,
-    PywrDataReference,
-    PywrComponentReference
-)
-
-from .fragments.misc import(
-    PywrBathymetry,
-    PywrWeather
-)
-
-from .fragments.position import(
-    PywrPosition
+    PywrDataReference
 )
 
 class PywrCatchmentNode(PywrNode):
@@ -21,15 +8,6 @@ class PywrCatchmentNode(PywrNode):
 
     def __init__(self, data):
         super().__init__(data)
-
-        #self.flow = PywrParameter.ParameterFactory(data["flow"])
-
-        #rand_data = data["flow"]    # A dataframeparameter
-        #rand_data = "Some text"
-        #rand_data = [ 1,2,3,4,5,6,7,8,9 ]
-        #rand_data = 1.23
-        #self.flow = PywrDataReference.ReferenceFactory("flow", data["flow"])
-        #self.flow = PywrParameterReference(data["flow"])
 
 
 class PywrLinkNode(PywrNode):
@@ -66,25 +44,6 @@ class PywrOutputNode(PywrNode):
     def __init__(self, data):
         super().__init__(data)
 
-        #self.cost = data.get("cost", 0)
-
-        # Add max_flow parameter reference
-        #max_flow = data.get("max_flow")
-        #self.max_flow = PywrDataReference.ReferenceFactory("max_flow", max_flow) if max_flow else 0
-
-
-"""
-class PywrReservoir(PywrNode):
-    key = "reservoir"
-
-    def __init__(self, data):
-        super().__init__(data)
-
-        self.max_volume = data["max_volume"]
-        self.initial_volume = data["initial_volume"]
-        self.bathymetry = PywrBathymetry(data["bathymetry"])
-        self.weather = PywrWeather(data["weather"])
-"""
 
 class PywrLinearStorageReleaseControlNode(PywrNode):
     key = "linearstoragereleasecontrol"
@@ -101,8 +60,6 @@ class PywrRiverGaugeNode(PywrNode):
 
     def __init__(self, data):
         super().__init__(data)
-
-        #self.cost = PywrDataReference.ReferenceFactory("cost", data["cost"])
 
 
 class PywrRiverSplitWithGaugeNode(PywrNode):
@@ -124,19 +81,6 @@ class PywrAggregatedNode(PywrNode):
 
     def __init__(self, data):
         super().__init__(data)
-
-    """
-            if "nodes" in data:
-            self.nodes = data["nodes"]
-
-        if "factors" in data:
-            self.factors = data["factors"]
-            assert len(self.factors) == len(self.nodes)
-
-    def __len__(self):
-        return len(self.nodes)
-
-    """
 
 
 class PywrAggregatedStorageNode(PywrNode):

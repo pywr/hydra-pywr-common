@@ -1,5 +1,3 @@
-from hydra_pywr_common.types.mixins import HydraDataset
-
 
 class Fragment():
     """ Base of all Pywr Fragments """

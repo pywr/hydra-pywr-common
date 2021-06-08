@@ -8,30 +8,10 @@ class PywrDailyProfileParameter(PywrParameter, ArbitraryDirectAttrs):
     def __init__(self, name, data, **kwargs):
         super().__init__(name)
         self.add_attrs(data)
-        #self.set_value(data)
 
-    def set_value(self, data):
-        """
-        for attr, val in data.items():
-        if "table" in data:
-            self.table = data["table"]
-            self.column = data["column"]
-        else:
-            self._value = data["values"]
-        """
 
     @property
     def value(self):
-        """
-        ret =  { "type": self.key }
-
-        if hasattr(self, "table"):
-            ret.update( { "table": self.table,
-                          "column": self.column
-                        })
-        else:
-            ret.update( {"values": self._value})
-        """
         ret = self.get_attr_values()
         ret.update( {"type": self.key} )
         return ret
