@@ -2,7 +2,7 @@ from hydra_pywr_common.types import PywrParameter
 from hydra_pywr_common.types.mixins import ArbitraryDirectAttrs
 
 class PywrDailyProfileParameter(PywrParameter, ArbitraryDirectAttrs):
-    key = "dailyprofile"
+    key = "dailyprofileparameter"
     hydra_data_type = "PYWR_PARAMETER"
 
     def __init__(self, name, data, **kwargs):
@@ -36,8 +36,3 @@ class PywrDailyProfileParameter(PywrParameter, ArbitraryDirectAttrs):
         ret.update( {"type": self.key} )
         return ret
 
-
-"""
-    Fix multiple names for PYWR_DAILY_PROFILE_PARAMETER
-"""
-PywrParameter.parameter_type_map["dailyprofileparameter"] = PywrDailyProfileParameter

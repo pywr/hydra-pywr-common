@@ -156,12 +156,16 @@ class PywrParameter(PywrEntity):
     parameter_type_map = {}
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        PywrParameter.parameter_type_map[cls.key.lower()] = cls
+        typekey = cls.key.lower()
+        assert typekey.endswith("parameter")
+        PywrParameter.parameter_type_map[typekey] = cls
 
     @staticmethod
     def ParameterFactory(arg): # (name, data) from params.items()
-        instkey = arg[1]["type"]
-        instcls = PywrParameter.parameter_type_map[instkey.lower()]
+        instkey = arg[1]["type"].lower()
+        if not instkey.endswith("parameter"):
+            instkey += "parameter"
+        instcls = PywrParameter.parameter_type_map[instkey]
         return instcls(*arg)
 
     def __init__(self, name):

@@ -37,8 +37,3 @@ class PywrDataframeParameter(PywrParameter, ArbitraryDirectAttrs):
             ret.update({ "type": self.key })
             return ret
 
-"""
-    Fix multiple names in use for PYWR_DATAFRAME parameter
-"""
-
-PywrParameter.parameter_type_map["dataframe"] = PywrDataframeParameter

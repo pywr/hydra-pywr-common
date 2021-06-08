@@ -1,5 +1,4 @@
 import json
-from pprint import pprint
 
 from hydra_pywr_common.types.base import(
     PywrNode,
@@ -156,8 +155,6 @@ class PywrHydraWriter():
         from hydra_client.connection import JSONConnection
         self.hydra = JSONConnection(self.hostname, session_id=self.session_id, user_id=self.user_id)
 
-        #print(f"Retrieving template '{template_name}'...")
-        #self.template = self.hydra.get_template_by_name(template_name)
         print(f"Retrieving template id '{self.template_id}'...")
         self.template = self.hydra.get_template(self.template_id)
 
@@ -179,15 +176,10 @@ class PywrHydraWriter():
             pass
         self.network.speculative_forward_references()
         self.hydra_attributes = self.register_hydra_attributes()
-        #print(self.hydra_attributes)
 
         """ Build network elements and resource_scenarios with datasets """
         self.hydra_nodes, node_scenarios = self.build_hydra_nodes()
-        #print(self.hydra_nodes)
-        #print(node_scenarios)
         self.network_attributes, network_scenarios = self.build_network_attributes()
-        #pprint(self.network_attributes)
-        #pprint(network_scenarios)
         self.hydra_links, link_scenarios = self.build_hydra_links()
 
         resource_scenarios = node_scenarios + network_scenarios + link_scenarios
@@ -214,8 +206,6 @@ class PywrHydraWriter():
         }
 
         """ Pass network to Hydra"""
-        #pprint(hydra_network)
-        #breakpoint()
         self.hydra.add_network(hydra_network)
 
 

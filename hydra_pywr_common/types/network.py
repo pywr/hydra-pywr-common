@@ -65,8 +65,8 @@ class PywrNetwork():
                         setattr(node, attrname, param)
                         #print(f"descriptor attr to parameter: {node.name} => a: {attrname} ri.v: {refinst.value}")
                     except KeyError as e:
+                        pass    # Remains as descriptor reference
                         #print(f"plain descriptor: {node.name} => a: {attrname} ri.v: {refinst.value}")
-                        pass
 
 
     def resolve_recorder_references(self):
@@ -76,14 +76,15 @@ class PywrNetwork():
                 try:
                     rec = self.recorders[refinst.name]
                     setattr(node, attrname, rec)
-                    print(f"recorder attr to recorder: {node.name} => a: {attrname} ri.n: {refinst.name}")
+                    #print(f"recorder attr to recorder: {node.name} => a: {attrname} ri.n: {refinst.name}")
                 except KeyError as e:
                     try:
                         param = self.recorders[refinst.value]
                         setattr(node, attrname, param)
-                        print(f"descriptor attr to recorder: {node.name} => a: {attrname} ri.v: {refinst.value}")
+                        #print(f"descriptor attr to recorder: {node.name} => a: {attrname} ri.v: {refinst.value}")
                     except KeyError as e:
-                        print(f"plain descriptor: {node.name} => a: {attrname} ri.v: {refinst.value}")
+                        pass    # Remains as descriptor reference
+                        #print(f"plain descriptor: {node.name} => a: {attrname} ri.v: {refinst.value}")
 
 
     def resolve_backwards_recorder_references(self):
@@ -94,7 +95,7 @@ class PywrNetwork():
             except KeyError as e:
                 raise
             setattr(node, attrname, rec)
-            print(f"recorder added: {node.name} => a: {attrname}")
+            #print(f"recorder added: {node.name} => a: {attrname}")
             if attrname not in node.intrinsic_attrs:
                 node.intrinsic_attrs.append(attrname)
 
@@ -109,7 +110,7 @@ class PywrNetwork():
             setattr(node, attrname, param)
             if attrname not in node.intrinsic_attrs:
                 node.intrinsic_attrs.append(attrname)
-            print(f"Added param <{param.key}> to {node.name} as {attrname}")
+            #print(f"Added param <{param.key}> to {node.name} as {attrname}")
 
 
     def speculative_forward_references(self):
@@ -133,7 +134,7 @@ class PywrNetwork():
 
             for attr, ref in node_refs.items():
                 setattr(node, attr, ref)
-                print(f"[sfr] {node.name} a: {attr} => {ref}")
+                #print(f"[sfr] {node.name} a: {attr} => {ref}")
                 if attr not in node.intrinsic_attrs:
                     node.intrinsic_attrs.append(attr)
 

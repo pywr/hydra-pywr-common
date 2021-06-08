@@ -1,7 +1,7 @@
 from hydra_pywr_common.types import PywrParameter
 
 class PywrRecorderThresholdParameter(PywrParameter):
-    key = "recorderthreshold"
+    key = "recorderthresholdparameter"
     hydra_data_type = "PYWR_PARAMETER"
 
     def __init__(self, name, data, **kwargs):

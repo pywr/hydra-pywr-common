@@ -59,8 +59,6 @@ class PywrJsonReader():
         src_params = self.src.get("parameters")
         if src_params:
             for param in src_params.items():
-                #if "Offord Abstract" in param[0] and param[1].get("type") == "aggregatedparameter":
-                #    breakpoint()
                 p = PywrParameter.ParameterFactory(param)
                 parameters[p.name] = p
 

@@ -3,6 +3,7 @@ from .monthlyprofileparameter import PywrMonthlyProfileParameter
 from .dailyprofileparameter import PywrDailyProfileParameter
 from .constantparameter import PywrConstantParameter
 from .aggregatedparameter import PywrAggregatedParameter
+from .aggregatedindexparameter import PywrAggregatedIndexParameter
 from .controlcurveinterpolatedparameter import PywrControlCurveInterpolatedParameter
 from .controlcurveindexparameter import PywrControlCurveIndexParameter
 from .controlcurveholdindexparameter import PywrControlCurveHoldIndexParameter
