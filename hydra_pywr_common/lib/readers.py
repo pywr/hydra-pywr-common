@@ -10,7 +10,8 @@ from hydra_pywr_common.types.base import(
 from hydra_pywr_common.types.fragments.network import(
     Timestepper,
     Metadata,
-    Table
+    Table,
+    Scenario
 )
 
 class PywrJsonReader():
@@ -26,6 +27,7 @@ class PywrJsonReader():
         self.timestepper = Timestepper(self.src["timestepper"])
         self.metadata = Metadata(self.src["metadata"])
         self.tables = self.build_tables()
+        self.scenarios = self.build_scenarios()
 
         self.parameters = self.build_parameters()
         self.recorders = self.build_recorders()
@@ -80,6 +82,16 @@ class PywrJsonReader():
                 tables[name] = t
 
         return tables
+
+    def build_scenarios(self):
+        scenarios = {}
+        src_scenarios = self.src.get("scenarios")
+        for scen in src_scenarios:  # list of dicts
+            s = Scenario(scen)
+            scenarios[s.name.value] = s
+
+        return scenarios
+
 
 
 class PywrHydraReader():

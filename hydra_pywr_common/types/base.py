@@ -194,6 +194,7 @@ class PywrRecorder(PywrEntity):
         PywrRecorder.recorder_type_map[cls.key] = cls
 
     def __init__(self, name):
+        super().__init__()
         self.name = name
 
     @staticmethod

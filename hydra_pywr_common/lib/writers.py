@@ -160,7 +160,12 @@ class PywrHydraWriter():
 
         """ Build network elements and resource_scenarios with datasets """
         self.hydra_nodes, node_scenarios = self.build_hydra_nodes()
-        self.network_attributes, network_scenarios = self.build_network_attributes()
+        """
+            TODO: If is integrated import, send appropriate attr_key to s.bnda()
+                  In export, expand network descriptor json to network.data["attributes"]
+        """
+        #self.network_attributes, network_scenarios = self.build_network_attributes()
+        self.network_attributes, network_scenarios = self.build_network_descriptor_attributes("water")
         self.hydra_links, link_scenarios = self.build_hydra_links()
 
         resource_scenarios = node_scenarios + network_scenarios + link_scenarios
@@ -291,6 +296,45 @@ class PywrHydraWriter():
                 resource_scenarios.append(rs)
 
         return hydra_network_attrs, resource_scenarios
+
+    def build_network_descriptor_attributes(self, attr_key):
+
+        attr_name = f"{attr_key}_data"
+        attrs = [ make_hydra_attr(attr_name) ]
+        self.hydra_attributes += self.hydra.add_attributes(attrs)
+
+        timestepper = self.network.timestepper.get_values()
+        metadata = self.network.metadata.get_values()
+        tables = [ table.get_values() for table in self.network.tables.values() ]
+        scenarios = [ scenario.get_values() for scenario in self.network.scenarios.values() ]
+
+        attr_data = {"timestepper": timestepper,
+                     "metadata": metadata
+                    }
+        if tables:
+            attr_data["tables"] = tables
+        if scenarios:
+            attr_data["scenarios"] = scenarios
+
+        dataset = { "name":  attr_name,
+                    "type":  "DESCRIPTOR",
+                    "value": json.dumps(attr_data),
+                    "metadata": "{}",
+                    "unit": "-",
+                    "hidden": 'N'
+                  }
+
+        local_attr_id = self.get_next_attr_id()
+        resource_attribute = { "id": local_attr_id,
+                               "attr_id": self.get_hydra_attrid_by_name(attr_name),
+                               "attr_is_var": "N"
+                             }
+
+        resource_scenario = { "resource_attr_id": local_attr_id,
+                              "dataset": dataset
+                            }
+
+        return [resource_attribute], [resource_scenario]
 
 
     def build_hydra_links(self):

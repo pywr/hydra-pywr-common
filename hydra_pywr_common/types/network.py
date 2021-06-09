@@ -10,6 +10,7 @@ class PywrNetwork():
         self.metadata = reader.metadata
         self.timestepper = reader.timestepper
         self.tables = reader.tables
+        self.scenarios = reader.scenarios
         self.nodes = reader.nodes
         self.edges = reader.edges
         self.parameters = reader.parameters
