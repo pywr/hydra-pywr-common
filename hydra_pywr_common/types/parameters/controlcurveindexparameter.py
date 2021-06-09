@@ -18,8 +18,3 @@ class PywrControlCurveIndexParameter(PywrParameter):
                  "control_curves": self.control_curves,
                }
 
-"""
-    Fix multiple Pywr names for PYWR_CONTROL_CURVE_INDEX_PARAMETER
-    e.g. Grafham:demand_saving_level vs. Grafham:Target_fill
-"""
-PywrParameter.parameter_type_map["controlcurveindex"] = PywrControlCurveIndexParameter

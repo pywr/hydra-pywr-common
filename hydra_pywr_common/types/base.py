@@ -90,14 +90,14 @@ class PywrNode(PywrEntity, HydraDataset):
         return isinstance(ref, (PywrParameter, PywrRecorder))
 
     @property
-    def pywr_node(self):
+    def pywr_node(self, inline_refs=False):
         node = { "name": self.name}
 
         if hasattr(self, "comment") and self.comment is not None:
             node.update({"comment": self.comment})
 
         if hasattr(self, "position") and self.position is not None:
-             node.update({"position": self.position.value})
+            node.update({"position": self.position.value})
 
         intrinsics = { name: attr.value for name, attr in self.__dict__.items() if name in self.intrinsic_attrs and not self._attr_is_p_or_r(name) }
         param_refs = {}
@@ -111,8 +111,9 @@ class PywrNode(PywrEntity, HydraDataset):
             recorder_refs[attr_name] = rec_attr
 
         node.update(intrinsics)
-        #node.update(param_refs)
-        #node.update(recorder_refs)
+        if inline_refs:
+            node.update(param_refs)
+            node.update(recorder_refs)
 
         return node
 
@@ -244,19 +245,6 @@ class PywrDataReference(PywrEntity, ABC):
     @abstractmethod
     def value(self):
         pass
-
-    """
-    @property
-    def dataset(self):
-        dataset = { "name":  self.name,
-                    "type":  self.hydra_data_type,
-                    "value": json.dumps(self.value),
-                    "metadata": "{}",
-                    "unit": "-",
-                    "hidden": 'N'
-                  }
-        return dataset
-    """
 
 
 class PywrDescriptorReference(PywrDataReference):
