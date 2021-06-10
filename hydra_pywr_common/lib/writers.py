@@ -152,6 +152,9 @@ class PywrHydraWriter():
         self.network.resolve_recorder_references()
         try:
             self.network.resolve_backwards_parameter_references()
+        except:
+            pass
+        try:
             self.network.resolve_backwards_recorder_references()
         except:
             pass
