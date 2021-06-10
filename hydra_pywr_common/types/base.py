@@ -96,7 +96,7 @@ class PywrNode(PywrEntity, HydraDataset):
         if hasattr(self, "comment") and self.comment is not None:
             node.update({"comment": self.comment})
 
-        if hasattr(self, "position") and self.position is not None:
+        if hasattr(self, "position") and self.position is not None and self.position.is_not_null:
             node.update({"position": self.position.value})
 
         intrinsics = { name: attr.value for name, attr in self.__dict__.items() if name in self.intrinsic_attrs and not self._attr_is_p_or_r(name) }

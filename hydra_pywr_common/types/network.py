@@ -3,6 +3,7 @@ from hydra_pywr_common.lib.readers import(
     PywrHydraReader
 )
 
+from hydra_pywr_common.lib.utils import parse_reference_key
 
 class PywrNetwork():
 

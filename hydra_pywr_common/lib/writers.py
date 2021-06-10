@@ -20,6 +20,8 @@ class PywrJsonWriter():
         output["edges"] = self.process_edges()
         if self.network.tables:
             output["tables"] = self.process_tables()
+        if self.network.scenarios:
+            output["scenarios"] = self.process_scenarios()
 
         return output
 
@@ -40,17 +42,14 @@ class PywrJsonWriter():
 
     def process_parameters(self):
         parameters = self.network.parameters
-
         return { ref: param.value for ref, param in parameters.items() }
 
     def process_recorders(self):
         recorders = self.network.recorders
-
         return { ref: rec.value for ref, rec in recorders.items() }
 
     def process_nodes(self):
         nodes = self.network.nodes
-
         return [ node.pywr_node for node in nodes.values() ]
 
     def process_edges(self):
@@ -60,6 +59,10 @@ class PywrJsonWriter():
     def process_tables(self):
         tables = self.network.tables
         return { table_name: table.get_values() for table_name, table in tables.items() }
+
+    def process_scenarios(self):
+        scenarios = self.network.scenarios
+        return [ scenario.get_values() for scenario in scenarios ]
 
 
 
@@ -152,6 +155,9 @@ class PywrHydraWriter():
         self.network.resolve_recorder_references()
         try:
             self.network.resolve_backwards_parameter_references()
+        except:
+            pass
+        try:
             self.network.resolve_backwards_recorder_references()
         except:
             pass

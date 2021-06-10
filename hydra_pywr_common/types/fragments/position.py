@@ -14,6 +14,9 @@ class Coordinate():
         instcls = Coordinate.coordinate_type_map[instkey]
         return instcls(*data[instkey])
 
+    def __bool__(self):
+        return bool(self.x) and bool(self.y)
+
 
 class GeographicCoordinate(Coordinate):
     key = "geographic"
@@ -56,3 +59,7 @@ class PywrPosition(Fragment):
         for c in self.coordinates:
             val.update(c.value)
         return val
+
+    @property
+    def is_not_null(self):
+        return any(self.coordinates)
