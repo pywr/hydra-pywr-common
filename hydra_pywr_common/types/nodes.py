@@ -128,3 +128,30 @@ class PywrCustomNode(PywrNode):
             typed_attr = PywrDataReference.ReferenceFactory(attr, value)
             setattr(self, attr, typed_attr)
             self.intrinsic_attrs.append(attr)
+
+"""
+    Energy Nodes
+"""
+class PywrGeneratorNode(PywrNode):
+    key = "generator"
+
+    def __init__(self, data):
+        super().__init__(data)
+
+class PywrLoadNode(PywrNode):
+    key = "load"
+
+    def __init__(self, data):
+        super().__init__(data)
+
+class PywrBusNode(PywrNode):
+    key = "bus"
+
+    def __init__(self, data):
+        super().__init__(data)
+
+class PywrLineNode(PywrNode):
+    key = "line"
+
+    def __init__(self, data):
+        super().__init__(data)

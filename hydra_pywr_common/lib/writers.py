@@ -143,7 +143,7 @@ class PywrHydraWriter():
         self.template = self.hydra.get_template(self.template_id)
 
 
-    def build_hydra_network(self, projection=None):
+    def build_hydra_network(self, projection=None, domain=None):
         if projection:
             self.projection = projection
         else:
@@ -167,24 +167,23 @@ class PywrHydraWriter():
         """ Build network elements and resource_scenarios with datasets """
         self.hydra_nodes, node_scenarios = self.build_hydra_nodes()
         """
-            TODO: If is integrated import, send appropriate attr_key to s.bnda()
-                  In export, expand network descriptor json to network.data["attributes"]
+            TODO: Allow single and integrated import to coexist
         """
         #self.network_attributes, network_scenarios = self.build_network_attributes()
-        self.network_attributes, network_scenarios = self.build_network_descriptor_attributes("water")
+        self.network_attributes, network_scenarios = self.build_network_descriptor_attributes(domain)
         self.hydra_links, link_scenarios = self.build_hydra_links()
 
-        resource_scenarios = node_scenarios + network_scenarios + link_scenarios
+        self.resource_scenarios = node_scenarios + network_scenarios + link_scenarios
 
         """ Create baseline scenario with resource_scenarios """
-        baseline_scenario = self.make_baseline_scenario(resource_scenarios)
+        baseline_scenario = self.make_baseline_scenario(self.resource_scenarios)
 
         """ Assemble complete network """
         network_name = self.network.metadata.title.value
         network_hydratype = self.get_hydra_network_type()
         network_description = self.network.metadata.description.value
 
-        hydra_network = {
+        self.hydra_network = {
             "name": network_name,
             "description": network_description,
             "project_id": self.project_id,
@@ -196,9 +195,12 @@ class PywrHydraWriter():
             "attributes": self.network_attributes,
             "types": [{ "id": network_hydratype["id"] }]
         }
+        return self.hydra_network
 
+
+    def add_network_to_hydra(self):
         """ Pass network to Hydra"""
-        self.hydra.add_network(hydra_network)
+        self.hydra.add_network(self.hydra_network)
 
 
     def register_hydra_attributes(self):
@@ -363,3 +365,115 @@ class PywrHydraWriter():
             hydra_links.append(hydra_link)
 
         return hydra_links, resource_scenarios
+
+"""
+    PywrIntegratedNetwork => Hydra
+"""
+class PywrHydraIntegratedWriter():
+
+    def __init__(self, pin,
+                       hostname=None,
+                       session_id=None,
+                       user_id=None,
+                       water_template_id=None,
+                       energy_template_id=None,
+                       project_id=None):
+        self.pin = pin
+        self.hostname = hostname
+        self.session_id = session_id
+        self.user_id = user_id
+        self.template_ids = (water_template_id, energy_template_id)
+        self.project_id = project_id
+
+
+    """
+    def get_typeid_by_name(self, name):
+        for template in self.templates:
+            for t in template["templatetypes"]:
+                if t["name"] == name:
+                    return t["id"]
+
+    """
+    def get_hydra_network_types(self):
+        types = []
+        for template in self.templates:
+            for t in template["templatetypes"]:
+                if t["resource_type"] == "NETWORK":
+                    types.append(t)
+
+        return types
+
+    def initialise_hydra_connection(self):
+        from hydra_client.connection import JSONConnection
+        self.hydra = JSONConnection(self.hostname, session_id=self.session_id, user_id=self.user_id)
+
+        templates = []
+        for tid in self.template_ids:
+            print(f"Retrieving template id '{tid}'...")
+            templates.append(self.hydra.get_template(tid))
+
+        self.templates = templates
+
+
+    def build_hydra_integrated_network(self, projection=None):
+        self.projection = projection
+        self.initialise_hydra_connection()
+
+        water_writer = PywrHydraWriter(self.pin.water,
+                hostname = self.hostname,
+                session_id = self.session_id,
+                user_id = self.user_id,
+                template_id = self.template_ids[0],
+                project_id = self.project_id
+               )
+
+        self.water_writer = water_writer
+        self.hydra_water_network = water_writer.build_hydra_network(projection="EPSG:4326", domain="water")
+
+        energy_writer = PywrHydraWriter(self.pin.energy,
+                hostname = self.hostname,
+                session_id = self.session_id,
+                user_id = self.user_id,
+                template_id = self.template_ids[1],
+                project_id = self.project_id
+               )
+
+        energy_writer._next_attr_id = water_writer._next_attr_id
+        energy_writer._next_node_id = water_writer._next_node_id
+        energy_writer._next_link_id = water_writer._next_link_id
+
+        self.energy_writer = energy_writer
+        self.hydra_energy_network = energy_writer.build_hydra_network(projection="EPSG:4326", domain="energy")
+
+        self.hydra_nodes = self.water_writer.hydra_nodes + self.energy_writer.hydra_nodes
+        self.hydra_links = self.water_writer.hydra_links + self.energy_writer.hydra_links
+        self.network_attributes = self.water_writer.network_attributes + self.energy_writer.network_attributes
+        network_hydratypes = [ {"id": t["id"]} for t in self.get_hydra_network_types() ]
+
+        self.resource_scenarios = self.water_writer.resource_scenarios + self.energy_writer.resource_scenarios
+
+        """ Create baseline scenario with resource_scenarios """
+        baseline_scenario = self.make_baseline_scenario(self.resource_scenarios)
+
+        self.hydra_network = {
+            "name": "Integrated WE Network",
+            "description": "Integrated WE Network desc",
+            "project_id": self.project_id,
+            "nodes": self.hydra_nodes,
+            "links": self.hydra_links,
+            "layout": None,
+            "scenarios": [baseline_scenario],
+            "projection": self.projection,
+            "attributes": self.network_attributes,
+            "types": network_hydratypes
+        }
+
+    def make_baseline_scenario(self, resource_scenarios):
+        return { "name": "Baseline",
+                 "description": "hydra-pywr Baseline scenario",
+                 "resourcescenarios": resource_scenarios if resource_scenarios else []
+               }
+
+    def add_network_to_hydra(self):
+        """ Pass network to Hydra"""
+        self.hydra.add_network(self.hydra_network)

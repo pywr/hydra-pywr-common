@@ -5,8 +5,8 @@ from hydra_pywr_common.lib.readers import(
 
 from hydra_pywr_common.lib.utils import parse_reference_key
 
-class PywrNetwork():
 
+class PywrNetwork():
     def __init__(self, reader):
         self.metadata = reader.metadata
         self.timestepper = reader.timestepper
@@ -20,7 +20,12 @@ class PywrNetwork():
 
     @classmethod
     def from_source_file(cls, infile):
-        reader = PywrJsonReader(infile)
+        reader = PywrJsonReader(filename=infile)
+        return cls(reader)
+
+    @classmethod
+    def from_source_json(cls, jsonsrc):
+        reader = PywrJsonReader(jsonsrc=jsonsrc)
         return cls(reader)
 
 

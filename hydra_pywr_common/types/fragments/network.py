@@ -30,6 +30,8 @@ class Timestepper(Fragment):
 class Metadata(Fragment):
     def __init__(self, data):
         super().__init__()
+        if "description" not in data:
+            data["description"] = ""
         self.parse_data(data)
 
     def parse_data(self, data):

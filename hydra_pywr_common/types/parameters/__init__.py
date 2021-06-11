@@ -2,6 +2,7 @@ from .dataframeparameter import PywrDataframeParameter
 from .monthlyprofileparameter import PywrMonthlyProfileParameter
 from .dailyprofileparameter import PywrDailyProfileParameter
 from .constantparameter import PywrConstantParameter
+from .constantscenarioparameter import PywrConstantScenarioParameter
 from .aggregatedparameter import PywrAggregatedParameter
 from .aggregatedindexparameter import PywrAggregatedIndexParameter
 from .controlcurveinterpolatedparameter import PywrControlCurveInterpolatedParameter

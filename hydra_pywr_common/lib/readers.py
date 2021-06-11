@@ -16,9 +16,13 @@ from hydra_pywr_common.types.fragments.network import(
 
 class PywrJsonReader():
 
-    def __init__(self, jsonsrc):
-        with open(jsonsrc, 'r') as fp:
-            self.src = json.load(fp)
+    def __init__(self, filename=None, jsonsrc=None):
+
+        if filename is not None:
+            with open(filename, 'r') as fp:
+                self.src = json.load(fp)
+        else:
+            self.src = jsonsrc
 
         self.build_network_from_json()
 
