@@ -79,11 +79,13 @@ class PywrHydraWriter():
     default_map_projection = None
 
     def __init__(self, network,
+                       hydra = None,
                        hostname=None,
                        session_id=None,
                        user_id=None,
                        template_id=None,
                        project_id=None):
+        self.hydra = hydra
         self.network = network
         self.hostname = hostname
         self.session_id = session_id
@@ -136,8 +138,9 @@ class PywrHydraWriter():
 
 
     def initialise_hydra_connection(self):
-        from hydra_client.connection import JSONConnection
-        self.hydra = JSONConnection(self.hostname, session_id=self.session_id, user_id=self.user_id)
+        if not self.hydra:
+            from hydra_client.connection import JSONConnection
+            self.hydra = JSONConnection(self.hostname, session_id=self.session_id, user_id=self.user_id)
 
         print(f"Retrieving template id '{self.template_id}'...")
         self.template = self.hydra.get_template(self.template_id)
@@ -166,11 +169,12 @@ class PywrHydraWriter():
 
         """ Build network elements and resource_scenarios with datasets """
         self.hydra_nodes, node_scenarios = self.build_hydra_nodes()
-        """
-            TODO: Allow single and integrated import to coexist
-        """
-        #self.network_attributes, network_scenarios = self.build_network_attributes()
-        self.network_attributes, network_scenarios = self.build_network_descriptor_attributes(domain)
+
+        if domain:
+            self.network_attributes, network_scenarios = self.build_network_descriptor_attributes(domain)
+        else:
+            self.network_attributes, network_scenarios = self.build_network_attributes()
+
         self.hydra_links, link_scenarios = self.build_hydra_links()
 
         self.resource_scenarios = node_scenarios + network_scenarios + link_scenarios
@@ -180,7 +184,7 @@ class PywrHydraWriter():
 
         """ Assemble complete network """
         network_name = self.network.metadata.title.value
-        network_hydratype = self.get_hydra_network_type()
+        self.network_hydratype = self.get_hydra_network_type()
         network_description = self.network.metadata.description.value
 
         self.hydra_network = {
@@ -193,7 +197,7 @@ class PywrHydraWriter():
             "scenarios": [baseline_scenario],
             "projection": self.projection,
             "attributes": self.network_attributes,
-            "types": [{ "id": network_hydratype["id"] }]
+            "types": [{ "id": self.network_hydratype["id"] }]
         }
         return self.hydra_network
 
@@ -386,14 +390,6 @@ class PywrHydraIntegratedWriter():
         self.project_id = project_id
 
 
-    """
-    def get_typeid_by_name(self, name):
-        for template in self.templates:
-            for t in template["templatetypes"]:
-                if t["name"] == name:
-                    return t["id"]
-
-    """
     def get_hydra_network_types(self):
         types = []
         for template in self.templates:
@@ -407,19 +403,13 @@ class PywrHydraIntegratedWriter():
         from hydra_client.connection import JSONConnection
         self.hydra = JSONConnection(self.hostname, session_id=self.session_id, user_id=self.user_id)
 
-        templates = []
-        for tid in self.template_ids:
-            print(f"Retrieving template id '{tid}'...")
-            templates.append(self.hydra.get_template(tid))
-
-        self.templates = templates
-
 
     def build_hydra_integrated_network(self, projection=None):
         self.projection = projection
         self.initialise_hydra_connection()
 
         water_writer = PywrHydraWriter(self.pin.water,
+                hydra = self.hydra,
                 hostname = self.hostname,
                 session_id = self.session_id,
                 user_id = self.user_id,
@@ -431,6 +421,7 @@ class PywrHydraIntegratedWriter():
         self.hydra_water_network = water_writer.build_hydra_network(projection="EPSG:4326", domain="water")
 
         energy_writer = PywrHydraWriter(self.pin.energy,
+                hydra = self.hydra,
                 hostname = self.hostname,
                 session_id = self.session_id,
                 user_id = self.user_id,
@@ -448,7 +439,9 @@ class PywrHydraIntegratedWriter():
         self.hydra_nodes = self.water_writer.hydra_nodes + self.energy_writer.hydra_nodes
         self.hydra_links = self.water_writer.hydra_links + self.energy_writer.hydra_links
         self.network_attributes = self.water_writer.network_attributes + self.energy_writer.network_attributes
-        network_hydratypes = [ {"id": t["id"]} for t in self.get_hydra_network_types() ]
+        network_hydratypes = [ { "id": self.water_writer.network_hydratype["id"]},
+                               { "id": self.energy_writer.network_hydratype["id"]}
+                             ]
 
         self.resource_scenarios = self.water_writer.resource_scenarios + self.energy_writer.resource_scenarios
 
