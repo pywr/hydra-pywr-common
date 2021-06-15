@@ -445,6 +445,10 @@ class PywrHydraIntegratedWriter():
 
         self.resource_scenarios = self.water_writer.resource_scenarios + self.energy_writer.resource_scenarios
 
+        config_attribute, config_scenario = self.build_network_config_attribute()
+        self.network_attributes += config_attribute
+        self.resource_scenarios += config_scenario
+
         """ Create baseline scenario with resource_scenarios """
         baseline_scenario = self.make_baseline_scenario(self.resource_scenarios)
 
@@ -460,6 +464,37 @@ class PywrHydraIntegratedWriter():
             "attributes": self.network_attributes,
             "types": network_hydratypes
         }
+
+    def build_network_config_attribute(self, attr_name="config"):
+        """ Delegate hydra ops to energy writer for connection and attr_ids """
+
+        attrs = [ make_hydra_attr(attr_name) ]
+        self.energy_writer.hydra_attributes += self.energy_writer.hydra.add_attributes(attrs)
+
+        config = self.pin.config.get_values()
+
+        attr_data = {"config": config}
+
+        dataset = { "name":  attr_name,
+                    "type":  "DESCRIPTOR",
+                    "value": json.dumps(attr_data),
+                    "metadata": "{}",
+                    "unit": "-",
+                    "hidden": 'N'
+                  }
+
+        local_attr_id = self.energy_writer.get_next_attr_id()
+        resource_attribute = { "id": local_attr_id,
+                               "attr_id": self.energy_writer.get_hydra_attrid_by_name(attr_name),
+                               "attr_is_var": "N"
+                             }
+
+        resource_scenario = { "resource_attr_id": local_attr_id,
+                              "dataset": dataset
+                            }
+
+        return [resource_attribute], [resource_scenario]
+
 
     def make_baseline_scenario(self, resource_scenarios):
         return { "name": "Baseline",

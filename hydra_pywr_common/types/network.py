@@ -1,9 +1,11 @@
+import json
 from hydra_pywr_common.lib.readers import(
     PywrJsonReader,
     PywrHydraReader
 )
 
 from hydra_pywr_common.lib.utils import parse_reference_key
+from hydra_pywr_common.types.fragments.config import IntegratedConfig
 
 
 class PywrNetwork():
@@ -125,3 +127,36 @@ class PywrNetwork():
                 if attr not in node.intrinsic_attrs:
                     node.intrinsic_attrs.append(attr)
 
+
+"""
+    Integrated Network
+"""
+
+
+class PywrIntegratedNetwork():
+    def __init__(self, water, energy, config):
+        self.water = water
+        self.energy = energy
+        self.config = config
+
+
+    @classmethod
+    def from_combined_file(cls, filename):
+        with open(filename, 'r') as fp:
+            src = json.load(fp)
+
+        water_src = src["water_network"]
+        water = PywrNetwork.from_source_json(water_src)
+
+        energy_src = src["energy_network"]
+        energy = PywrNetwork.from_source_json(energy_src)
+
+        config_src = src["config"]
+        config = IntegratedConfig(config_src)
+
+        return cls(water, energy, config)
+
+
+    @classmethod
+    def from_instances(cls, water, energy, config):
+        return cls(water, energy, config)
