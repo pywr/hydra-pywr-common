@@ -65,15 +65,57 @@ class PywrJsonWriter():
         return [ scenario.get_values() for scenario in scenarios ]
 
 
+"""
+    PywrIntegratedNetwork => Pynsim config & Pywr json
+"""
+class PywrIntegratedJsonWriter():
+    def __init__(self, network):
+        self.network = network
 
+    def as_dict(self):
+        ww = PywrJsonWriter(self.network.water)
+        ew = PywrJsonWriter(self.network.energy)
+
+        self.water_output = ww.as_dict()
+        self.energy_output = ew.as_dict()
+        self.config = self.network.config.get_values()
+
+        return { **self.config,
+                 "water": self.water_output,
+                 "energy": self.energy_output
+               }
+
+
+    def write_as_pynsim(self, pynsim_file="pynsim_model.json"):
+        combined = self.as_dict()
+        def _lookup_outfile(engine_name):
+            engines = combined["config"]["engines"]
+            f = filter(lambda e: e["name"] == engine_name, engines)
+            return next(iter(f))["args"][0]
+
+        outputs = {}
+        for engine in ("water", "energy"):
+            outfile = _lookup_outfile(engine)
+            with open(outfile, 'w') as fp:
+                json.dump(combined[engine], fp, indent=2)
+                outputs[engine] = outfile
+
+        with open(pynsim_file, 'w') as fp:
+            json.dump(combined["config"], fp, indent=2)
+            outputs["config"] = pynsim_file
+
+        return outputs
+
+
+"""
+    PywrNetwork => hydra_network
+"""
 def make_hydra_attr(name, desc=None):
     return { "name": name,
              "description": desc if desc else name
            }
 
-"""
-    PywrNetwork => hydra_network
-"""
+
 class PywrHydraWriter():
 
     default_map_projection = None

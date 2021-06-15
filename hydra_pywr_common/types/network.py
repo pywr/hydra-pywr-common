@@ -89,6 +89,17 @@ class PywrNetwork():
                 node.intrinsic_attrs.append(attrname)
 
 
+    def resolve_backwards_recorder_references_by_node_key(self):
+        for rec in self.recorders.values():
+            try:
+                node = rec["node"]
+            except KeyError:
+                pass
+            setattr(node, attrname, rec)
+            if attrname not in node.intrinsic_attrs:
+                node.intrinsic_attrs.append(attrname)
+
+
     def resolve_backwards_parameter_references(self):
         for noderef, param in self.parameters.items():
             nodename, attrname = parse_reference_key(noderef)
