@@ -547,3 +547,103 @@ class PywrHydraIntegratedWriter():
     def add_network_to_hydra(self):
         """ Pass network to Hydra"""
         self.hydra.add_network(self.hydra_network)
+
+
+"""
+    Integrated model output.h5 => Updated Hydra network
+"""
+
+class IntegratedOutputWriter():
+    def __init__(self, scenario_id, template_id, output_file, hydra=None, hostname=None, session_id=None, user_id=None):
+        import tables
+        self.scenario_id = scenario_id
+        self.template_id = template_id
+        self.data = tables.open_file(output_file)
+        self.hydra = hydra
+        self.hostname = hostname
+        self.session_id = session_id
+        self.user_id = user_id
+
+        self.initialise_hydra_connection()
+
+
+    def initialise_hydra_connection(self):
+        if not self.hydra:
+            from hydra_client.connection import JSONConnection
+            self.hydra = JSONConnection(self.hostname, session_id=self.session_id, user_id=self.user_id)
+
+        self.scenario = self.hydra.get_scenario(self.scenario_id, include_data=True, include_results=False, include_metadata=False, include_attr=False)
+        self.network = self.hydra.get_network(self.scenario.network_id, include_data=False, include_results=False, template_id=self.template_id)
+
+    def _copy_scenario(self):
+        json_scenario = self.scenario.as_json()
+        scenario = json.loads(json_scenario)
+        scenario["resourcescenarios"] = []
+        return scenario
+
+    def build_hydra_output(self):
+        output_scenario = self._copy_scenario()
+        self.times = build_times(self.data)
+        node_datasets = self.process_node_results()
+        parameter_datasets = self.process_parameter_results()
+        breakpoint()
+
+    def process_node_results(self):
+        node_datasets = {}
+        for node in self.data.get_node("/nodes"):
+            ds = build_node_dataset(node, self.times)
+            node_datasets[node.name] = ds
+
+        return node_datasets
+
+    def process_parameter_results(self):
+        param_datasets = []
+        for param in self.data.get_node("/parameters"):
+            ds = build_parameter_dataset(param, self.times)
+            param_datasets.append(ds)
+
+        return param_datasets
+
+
+    def get_node_by_name(self, name):
+        for node in self.network["nodes"]:
+            if node["name"] == name:
+                return node
+
+
+"""
+    Utilities
+"""
+def unwrap_list(node_data):
+    return [ i[0] for i in node_data ]
+
+def build_times(data, node="/time"):
+    raw_times = data.get_node(node).read().tolist()
+    return [ f"{t[0]}-{t[2]}-{t[3]}" for t in raw_times ]
+
+def build_node_dataset(node, times, node_attr="simulated_flow"):
+    raw_node_data = node.read().tolist()
+    node_data = unwrap_list(raw_node_data)
+
+    series = {}
+    dataset = { node_attr: series}
+
+    for t,v in zip(times, node_data):
+        series[t] = v
+
+    return dataset
+
+
+def build_parameter_dataset(param, times, stok='_'):
+    node, _, attr = param.name.partition(stok)
+    raw_param_data = param.read().tolist()
+    param_data = unwrap_list(raw_param_data)
+
+    series = {}
+    dataset = { node: { attr: series} }
+
+    for t,v in zip(times, param_data):
+        series[t] = v
+
+    return dataset
+
