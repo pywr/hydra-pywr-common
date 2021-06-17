@@ -554,11 +554,15 @@ class PywrHydraIntegratedWriter():
 """
 
 class IntegratedOutputWriter():
-    def __init__(self, scenario_id, template_id, output_file, hydra=None, hostname=None, session_id=None, user_id=None):
+    domain_attr_map = {"water": "simulated_flow", "energy": "flow"}
+
+    def __init__(self, scenario_id, template_id, output_file, domain, hydra=None, hostname=None, session_id=None, user_id=None):
         import tables
         self.scenario_id = scenario_id
         self.template_id = template_id
         self.data = tables.open_file(output_file)
+        self.domain = domain
+
         self.hydra = hydra
         self.hostname = hostname
         self.session_id = session_id
@@ -583,18 +587,26 @@ class IntegratedOutputWriter():
 
     def build_hydra_output(self):
         output_scenario = self._copy_scenario()
+        output_attr = self.domain_attr_map[self.domain]
+
         self.times = build_times(self.data)
-        node_datasets = self.process_node_results()
+        node_datasets = self.process_node_results(output_attr)
         parameter_datasets = self.process_parameter_results()
+
+        node_scenarios = self.add_node_attributes(node_datasets, output_attr=output_attr)
+        output_scenario["resourcescenarios"] = node_scenarios
+
+        self.hydra.update_scenario(output_scenario)
         breakpoint()
 
-    def process_node_results(self):
+    def process_node_results(self, node_attr):
         node_datasets = {}
         for node in self.data.get_node("/nodes"):
-            ds = build_node_dataset(node, self.times)
+            ds = build_node_dataset(node, self.times, node_attr)
             node_datasets[node.name] = ds
 
         return node_datasets
+
 
     def process_parameter_results(self):
         param_datasets = []
@@ -603,6 +615,35 @@ class IntegratedOutputWriter():
             param_datasets.append(ds)
 
         return param_datasets
+
+
+    def add_node_attributes(self, node_datasets, output_attr="simulated_flow"):
+        sf_attr = make_hydra_attr(output_attr)
+        hydra_attrs = self.hydra.add_attributes([sf_attr])
+        sf_hydra_attr = hydra_attrs[0]
+
+        resource_scenarios = []
+
+        for node_name, node_ds in node_datasets.items():
+            print(node_name)
+            hydra_node = self.get_node_by_name(node_name)
+            sf_res_attr = self.hydra.add_resource_attribute("NODE", hydra_node["id"], sf_hydra_attr["id"], is_var='Y', error_on_duplicate=False)
+
+            dataset = { "name":  sf_hydra_attr["name"],
+                        "type":  "DATAFRAME",
+                        "value": json.dumps(node_ds),
+                        "metadata": "{}",
+                        "unit": "-",
+                        "hidden": 'N'
+                      }
+
+            resource_scenario = { "resource_attr_id": sf_res_attr["id"],
+                                  "dataset": dataset
+                                }
+
+            resource_scenarios.append(resource_scenario)
+
+        return resource_scenarios
 
 
     def get_node_by_name(self, name):
@@ -619,7 +660,7 @@ def unwrap_list(node_data):
 
 def build_times(data, node="/time"):
     raw_times = data.get_node(node).read().tolist()
-    return [ f"{t[0]}-{t[2]}-{t[3]}" for t in raw_times ]
+    return [ f"{t[0]:02}-{t[2]:02}-{t[3]}" for t in raw_times ]
 
 def build_node_dataset(node, times, node_attr="simulated_flow"):
     raw_node_data = node.read().tolist()
