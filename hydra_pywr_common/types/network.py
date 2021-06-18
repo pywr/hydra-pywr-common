@@ -171,3 +171,8 @@ class PywrIntegratedNetwork():
     @classmethod
     def from_instances(cls, water, energy, config):
         return cls(water, energy, config)
+
+
+    @property
+    def domains(self):
+        return ("water", "energy")

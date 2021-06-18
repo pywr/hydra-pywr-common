@@ -93,12 +93,13 @@ class PywrIntegratedJsonWriter():
             f = filter(lambda e: e["name"] == engine_name, engines)
             return next(iter(f))["args"][0]
 
-        outputs = {}
-        for engine in ("water", "energy"):
+        outputs = {"engines": self.network.domains}
+
+        for engine in self.network.domains:
             outfile = _lookup_outfile(engine)
             with open(outfile, 'w') as fp:
                 json.dump(combined[engine], fp, indent=2)
-                outputs[engine] = outfile
+                outputs[engine] = {"file": outfile}
 
         with open(pynsim_file, 'w') as fp:
             json.dump(combined["config"], fp, indent=2)
@@ -597,7 +598,6 @@ class IntegratedOutputWriter():
         output_scenario["resourcescenarios"] = node_scenarios
 
         self.hydra.update_scenario(output_scenario)
-        breakpoint()
 
     def process_node_results(self, node_attr):
         node_datasets = {}
@@ -625,7 +625,7 @@ class IntegratedOutputWriter():
         resource_scenarios = []
 
         for node_name, node_ds in node_datasets.items():
-            print(node_name)
+            print(f"{self.domain} => {node_name}")
             hydra_node = self.get_node_by_name(node_name)
             sf_res_attr = self.hydra.add_resource_attribute("NODE", hydra_node["id"], sf_hydra_attr["id"], is_var='Y', error_on_duplicate=False)
 
