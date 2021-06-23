@@ -495,9 +495,11 @@ class PywrHydraIntegratedWriter():
         """ Create baseline scenario with resource_scenarios """
         baseline_scenario = self.make_baseline_scenario(self.resource_scenarios)
 
+        config = self.pin.config.get_values()
+
         self.hydra_network = {
-            "name": "Integrated WE Network",
-            "description": "Integrated WE Network desc",
+            "name": config["name"],
+            "description": config.get("description",""),
             "project_id": self.project_id,
             "nodes": self.hydra_nodes,
             "links": self.hydra_links,
@@ -507,6 +509,7 @@ class PywrHydraIntegratedWriter():
             "attributes": self.network_attributes,
             "types": network_hydratypes
         }
+
 
     def build_network_config_attribute(self, attr_name="config"):
         """ Delegate hydra ops to energy writer for connection and attr_ids """

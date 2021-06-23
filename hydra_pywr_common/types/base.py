@@ -103,7 +103,8 @@ class PywrNode(PywrEntity, HydraDataset):
         param_refs = {}
         for param_attr in self.parameters:
             node_name, attr_name = parse_reference_key(param_attr)
-            param_refs[attr_name] = param_attr
+            if "flow" in attr_name:
+                param_refs[attr_name] = param_attr
 
         recorder_refs = {}
         for rec_attr in self.recorders:
@@ -111,9 +112,13 @@ class PywrNode(PywrEntity, HydraDataset):
             recorder_refs[attr_name] = rec_attr
 
         node.update(intrinsics)
+        node.update(param_refs)
+        #node.update(recorder_refs)
+        """
         if inline_refs:
             node.update(param_refs)
             node.update(recorder_refs)
+        """
 
         return node
 
