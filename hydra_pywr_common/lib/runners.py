@@ -12,7 +12,7 @@ class IntegratedModelRunner():
         self.pynsim_config = pynsim_config
 
     def run_subprocess(self):
-        fdf, fdfcmd = "/home/paul/code/fdif/bin/fdf", "run"
+        fdf, fdfcmd = "fdf", "run"
         modelargs = [ self.pynsim_config ]
         pargs = (fdf, fdfcmd, *modelargs)
         write_output(f"Begin model run using: {pargs=}...")
