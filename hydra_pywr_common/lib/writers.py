@@ -315,7 +315,9 @@ class PywrHydraWriter():
                 hydra_node["description"] = node.comment
             hydra_node["layout"] = {}
             hydra_node["attributes"] = resource_attributes
-            hydra_node["types"] = [{ "id": self.get_typeid_by_name(node.key) }]
+            hydra_node["types"] = [{ "id": self.get_typeid_by_name(node.key),
+                                     "child_template_id": self.template_id
+                                  }]
 
             if hasattr(node, "position") and node.position is not None:
                 key = "geographic" if self.projection else "schematic"
