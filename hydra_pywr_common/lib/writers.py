@@ -240,7 +240,7 @@ class PywrHydraWriter():
             "scenarios": [baseline_scenario],
             "projection": self.projection,
             "attributes": self.network_attributes,
-            "types": [{ "id": self.network_hydratype["id"] }]
+            "types": [{ "id": self.network_hydratype["id"], "child_template_id": self.template_id }]
         }
         return self.hydra_network
 
@@ -484,8 +484,8 @@ class PywrHydraIntegratedWriter():
         self.hydra_nodes = self.water_writer.hydra_nodes + self.energy_writer.hydra_nodes
         self.hydra_links = self.water_writer.hydra_links + self.energy_writer.hydra_links
         self.network_attributes = self.water_writer.network_attributes + self.energy_writer.network_attributes
-        network_hydratypes = [ { "id": self.water_writer.network_hydratype["id"]},
-                               { "id": self.energy_writer.network_hydratype["id"]}
+        network_hydratypes = [ { "id": self.water_writer.network_hydratype["id"], "child_template_id": self.template_ids[0] },
+                               { "id": self.energy_writer.network_hydratype["id"], "child_template_id": self.template_ids[1] }
                              ]
 
         self.resource_scenarios = self.water_writer.resource_scenarios + self.energy_writer.resource_scenarios
