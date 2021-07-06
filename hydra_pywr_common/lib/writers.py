@@ -152,6 +152,9 @@ class PywrHydraWriter():
                 return t
 
     def get_hydra_attrid_by_name(self, attr_name):
+        if attr_name in self.template_attributes:
+            return self.template_attributes[attr_name]
+
         for attr in self.hydra_attributes:
             if attr["name"] == attr_name:
                 return attr["id"]
@@ -208,6 +211,8 @@ class PywrHydraWriter():
         except:
             pass
         self.network.speculative_forward_references()
+
+        self.template_attributes = self.collect_template_attributes()
         self.hydra_attributes = self.register_hydra_attributes()
 
         """ Build network elements and resource_scenarios with datasets """
@@ -249,6 +254,14 @@ class PywrHydraWriter():
         """ Pass network to Hydra"""
         self.hydra.add_network(self.hydra_network)
 
+    def collect_template_attributes(self):
+        template_attrs = {}
+        for tt in self.template["templatetypes"]:
+            for ta in tt["typeattrs"]:
+                attr = ta["attr"]
+                template_attrs[attr["name"]] = attr["id"]
+
+        return template_attrs
 
     def register_hydra_attributes(self):
         timestepper_attrs = { 'timestepper.start', 'timestepper.end', 'timestepper.timestep'}
@@ -266,7 +279,7 @@ class PywrHydraWriter():
             for attr_name in table.intrinsic_attrs:
                 pending_attrs.add(f"tbl_{table_name}.{attr_name}")
 
-        attrs = [ make_hydra_attr(attr_name) for attr_name in pending_attrs - excluded_attrs ]
+        attrs = [ make_hydra_attr(attr_name) for attr_name in pending_attrs - excluded_attrs.union(set(self.template_attributes.keys())) ]
 
         return self.hydra.add_attributes(attrs)
 
