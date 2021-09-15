@@ -146,19 +146,18 @@ class PywrHydraWriter():
             if t["name"] == name:
                 return t["id"]
 
-        breakpoint()
-
     def get_hydra_network_type(self):
         for t in self.template["templatetypes"]:
             if t["resource_type"] == "NETWORK":
                 return t
 
     def get_hydra_attrid_by_name(self, attr_name):
+        if attr_name in self.template_attributes:
+            return self.template_attributes[attr_name]
+
         for attr in self.hydra_attributes:
             if attr["name"] == attr_name:
                 return attr["id"]
-
-        breakpoint()
 
     def get_next_node_id(self):
         self._next_node_id -= 1
@@ -212,6 +211,8 @@ class PywrHydraWriter():
         except:
             pass
         self.network.speculative_forward_references()
+
+        self.template_attributes = self.collect_template_attributes()
         self.hydra_attributes = self.register_hydra_attributes()
 
         """ Build network elements and resource_scenarios with datasets """
@@ -244,10 +245,8 @@ class PywrHydraWriter():
             "scenarios": [baseline_scenario],
             "projection": self.projection,
             "attributes": self.network_attributes,
-            "types": [{ "id": self.network_hydratype["id"] }]
+            "types": [{ "id": self.network_hydratype["id"], "child_template_id": self.template_id }]
         }
-        #from pprint import pprint
-        #pprint(self.hydra_network)
         return self.hydra_network
 
 
@@ -255,6 +254,14 @@ class PywrHydraWriter():
         """ Pass network to Hydra"""
         self.hydra.add_network(self.hydra_network)
 
+    def collect_template_attributes(self):
+        template_attrs = {}
+        for tt in self.template["templatetypes"]:
+            for ta in tt["typeattrs"]:
+                attr = ta["attr"]
+                template_attrs[attr["name"]] = attr["id"]
+
+        return template_attrs
 
     def register_hydra_attributes(self):
         timestepper_attrs = { 'timestepper.start', 'timestepper.end', 'timestepper.timestep'}
@@ -272,7 +279,7 @@ class PywrHydraWriter():
             for attr_name in table.intrinsic_attrs:
                 pending_attrs.add(f"tbl_{table_name}.{attr_name}")
 
-        attrs = [ make_hydra_attr(attr_name) for attr_name in pending_attrs - excluded_attrs ]
+        attrs = [ make_hydra_attr(attr_name) for attr_name in pending_attrs - excluded_attrs.union(set(self.template_attributes.keys())) ]
 
         return self.hydra.add_attributes(attrs)
 
@@ -321,7 +328,9 @@ class PywrHydraWriter():
                 hydra_node["description"] = node.comment
             hydra_node["layout"] = {}
             hydra_node["attributes"] = resource_attributes
-            hydra_node["types"] = [{ "id": self.get_typeid_by_name(node.key) }]
+            hydra_node["types"] = [{ "id": self.get_typeid_by_name(node.key),
+                                     "child_template_id": self.template_id
+                                  }]
 
             if hasattr(node, "position") and node.position is not None:
                 key = "geographic" if self.projection else "schematic"
@@ -331,8 +340,6 @@ class PywrHydraWriter():
                 hydra_node["y"] = y
 
             hydra_nodes.append(hydra_node)
-            if node.key == "bus":
-                breakpoint()
 
         return hydra_nodes, resource_scenarios
 
@@ -490,8 +497,8 @@ class PywrHydraIntegratedWriter():
         self.hydra_nodes = self.water_writer.hydra_nodes + self.energy_writer.hydra_nodes
         self.hydra_links = self.water_writer.hydra_links + self.energy_writer.hydra_links
         self.network_attributes = self.water_writer.network_attributes + self.energy_writer.network_attributes
-        network_hydratypes = [ { "id": self.water_writer.network_hydratype["id"]},
-                               { "id": self.energy_writer.network_hydratype["id"]}
+        network_hydratypes = [ { "id": self.water_writer.network_hydratype["id"], "child_template_id": self.template_ids[0] },
+                               { "id": self.energy_writer.network_hydratype["id"], "child_template_id": self.template_ids[1] }
                              ]
 
         self.resource_scenarios = self.water_writer.resource_scenarios + self.energy_writer.resource_scenarios
