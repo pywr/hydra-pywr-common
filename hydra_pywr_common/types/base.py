@@ -162,7 +162,7 @@ class PywrParameter(PywrEntity):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         typekey = cls.key.lower()
-        assert typekey.endswith("parameter")
+        #assert typekey.endswith("parameter")
         PywrParameter.parameter_type_map[typekey] = cls
 
     @staticmethod
@@ -170,8 +170,15 @@ class PywrParameter(PywrEntity):
         instkey = arg[1]["type"].lower()
         if not instkey.endswith("parameter"):
             instkey += "parameter"
-        instcls = PywrParameter.parameter_type_map[instkey]
-        return instcls(*arg)
+        #instcls = PywrParameter.parameter_type_map[instkey]
+        instcls = PywrParameter.parameter_type_map.get(instkey)
+        if not instcls:
+            instcls = PywrParameter.parameter_type_map["unknownparameter"]
+
+        try:
+            return instcls(*arg)
+        except:
+            return PywrParameter.parameter_type_map["unknownparameter"](*arg)
 
     def __init__(self, name):
         super().__init__()
@@ -204,8 +211,17 @@ class PywrRecorder(PywrEntity):
     @staticmethod
     def RecorderFactory(arg): # (name, data)
         instkey = arg[1]["type"]
-        instcls = PywrRecorder.recorder_type_map[instkey.lower()]
-        return instcls(*arg)
+        #instcls = PywrRecorder.recorder_type_map[instkey.lower()]
+        instcls = PywrRecorder.recorder_type_map.get(instkey.lower())
+
+        if not instcls:
+            instcls = PywrRecorder.recorder_type_map["unknownrecorder"]
+
+        try:
+            return instcls(*arg)
+        except:
+            return PywrRecorder.recorder_type_map["unknownrecorder"](*arg)
+
 
 
 class PywrDataReference(PywrEntity, ABC):

@@ -106,7 +106,7 @@ class PywrNetwork():
             try:
                 node = self.nodes[nodename]
             except KeyError as e:
-                raise
+                continue
             setattr(node, attrname, param)
             if attrname not in node.intrinsic_attrs:
                 node.intrinsic_attrs.append(attrname)

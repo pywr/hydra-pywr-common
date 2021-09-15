@@ -146,6 +146,8 @@ class PywrHydraWriter():
             if t["name"] == name:
                 return t["id"]
 
+        breakpoint()
+
     def get_hydra_network_type(self):
         for t in self.template["templatetypes"]:
             if t["resource_type"] == "NETWORK":
@@ -155,6 +157,8 @@ class PywrHydraWriter():
         for attr in self.hydra_attributes:
             if attr["name"] == attr_name:
                 return attr["id"]
+
+        breakpoint()
 
     def get_next_node_id(self):
         self._next_node_id -= 1
@@ -242,6 +246,8 @@ class PywrHydraWriter():
             "attributes": self.network_attributes,
             "types": [{ "id": self.network_hydratype["id"] }]
         }
+        #from pprint import pprint
+        #pprint(self.hydra_network)
         return self.hydra_network
 
 
@@ -296,7 +302,7 @@ class PywrHydraWriter():
         hydra_nodes = []
         resource_scenarios = []
 
-        exclude_node_attrs = ('type',)
+        exclude_node_attrs = ('type', "Turbine")
 
         for node in self.network.nodes.values():
             resource_attributes = []
@@ -325,6 +331,8 @@ class PywrHydraWriter():
                 hydra_node["y"] = y
 
             hydra_nodes.append(hydra_node)
+            if node.key == "bus":
+                breakpoint()
 
         return hydra_nodes, resource_scenarios
 
@@ -495,9 +503,11 @@ class PywrHydraIntegratedWriter():
         """ Create baseline scenario with resource_scenarios """
         baseline_scenario = self.make_baseline_scenario(self.resource_scenarios)
 
+        config = self.pin.config.get_values()
+
         self.hydra_network = {
-            "name": "Integrated WE Network",
-            "description": "Integrated WE Network desc",
+            "name": config["name"],
+            "description": config.get("description",""),
             "project_id": self.project_id,
             "nodes": self.hydra_nodes,
             "links": self.hydra_links,
@@ -507,6 +517,7 @@ class PywrHydraIntegratedWriter():
             "attributes": self.network_attributes,
             "types": network_hydratypes
         }
+
 
     def build_network_config_attribute(self, attr_name="config"):
         """ Delegate hydra ops to energy writer for connection and attr_ids """

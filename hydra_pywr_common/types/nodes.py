@@ -54,6 +54,11 @@ class PywrLinearStorageReleaseControlNode(PywrNode):
         self.release_values = PywrDataReference.ReferenceFactory("release_values", data["release_values"])
         self.storage_node = PywrDataReference.ReferenceFactory("storage_node", data["storage_node"])
 
+class PywrRiver(PywrNode):
+    key = "river"
+
+    def __init__(self, data):
+        super().__init__(data)
 
 class PywrRiverGaugeNode(PywrNode):
     key = "rivergauge"
@@ -136,6 +141,7 @@ class PywrGeneratorNode(PywrNode):
     key = "generator"
 
     def __init__(self, data):
+
         super().__init__(data)
 
 class PywrLoadNode(PywrNode):
