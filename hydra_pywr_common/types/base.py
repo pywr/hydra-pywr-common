@@ -113,11 +113,6 @@ class PywrNode(PywrEntity, HydraDataset):
 
         node.update(intrinsics)
         node.update(param_refs)
-        """
-        if inline_refs:
-            node.update(param_refs)
-            node.update(recorder_refs)
-        """
 
         return node
 

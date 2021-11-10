@@ -89,7 +89,7 @@ class PywrJsonReader():
 
     def build_scenarios(self):
         scenarios = {}
-        src_scenarios = self.src.get("scenarios")
+        src_scenarios = self.src.get("scenarios", [])
         for scen in src_scenarios:  # list of dicts
             s = Scenario(scen)
             scenarios[s.name.value] = s
