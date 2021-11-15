@@ -102,6 +102,20 @@ class PywrAnnualVirtualStorageNode(PywrNode):
         super().__init__(data)
 
 
+class PywrSeasonalVirtualStorageNode(PywrNode):
+    key = "seasonalvirtualstorage"
+
+    def __init__(self, data):
+        super().__init__(data)
+
+
+class PywrRollingVirtualStorageNode(PywrNode):
+    key = "rollingvirtualstorage"
+
+    def __init__(self, data):
+        super().__init__(data)
+
+
 class PywrReservoirNode(PywrNode):
     key = "reservoir"
 
@@ -127,7 +141,6 @@ class PywrCustomNode(PywrNode):
 
     def __init__(self, data):
         super().__init__(data)
-        #print(data)
         self.intrinsic_attrs = []
         self.parse_data(data)
 
