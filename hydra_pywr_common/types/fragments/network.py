@@ -44,8 +44,6 @@ class Metadata(Fragment):
 class Table(Fragment):
     def __init__(self, data):
         super().__init__()
-        self.set_intrinsic_as(PywrDescriptorReference, "index_col", data)
-        self.set_intrinsic_as(PywrDescriptorReference, "header", data)
         self.parse_data(data)
 
     def parse_data(self, data):

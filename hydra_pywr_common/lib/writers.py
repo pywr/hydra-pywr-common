@@ -292,6 +292,7 @@ class PywrHydraWriter():
                                "attr_is_var": "N"
                              }
 
+
         return resource_attribute, resource_scenario
 
 
@@ -309,7 +310,7 @@ class PywrHydraWriter():
         hydra_nodes = []
         resource_scenarios = []
 
-        exclude_node_attrs = ('type', "Turbine")
+        exclude_node_attrs = ('type', "Turbine", "cc_level", "Evap_max_flow")
 
         for node in self.network.nodes.values():
             resource_attributes = []
