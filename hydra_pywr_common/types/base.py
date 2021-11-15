@@ -48,7 +48,7 @@ class PywrNode(PywrEntity, HydraDataset):
 
     @staticmethod
     def NodeFactory(data):
-        instkey = data["type"]
+        instkey = data["type"].lower()
         instcls = PywrNode.node_type_map.get(instkey)
         if instcls:
             return instcls(data)
