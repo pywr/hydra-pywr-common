@@ -115,6 +115,12 @@ class PywrTurbineNode(PywrNode):
     def __init__(self, data):
         super().__init__(data)
 
+class PywrLossLinkNode(PywrNode):
+    key = "losslink"
+
+    def __init__(self, data):
+        super().__init__(data)
+
 
 class PywrCustomNode(PywrNode):
     key = "__custom_node__"
