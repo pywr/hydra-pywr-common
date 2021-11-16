@@ -143,8 +143,10 @@ class PywrHydraWriter():
 
     def get_typeid_by_name(self, name):
         for t in self.template["templatetypes"]:
-            if t["name"] == name:
+            if t["name"].lower() == name.lower():
                 return t["id"]
+
+        raise Exception(f"Type for node {name} could not be found")
 
     def get_hydra_network_type(self):
         for t in self.template["templatetypes"]:
@@ -329,6 +331,7 @@ class PywrHydraWriter():
                 hydra_node["description"] = node.comment
             hydra_node["layout"] = {}
             hydra_node["attributes"] = resource_attributes
+
             hydra_node["types"] = [{ "id": self.get_typeid_by_name(node.key),
                                      "child_template_id": self.template_id
                                   }]
@@ -706,4 +709,3 @@ def build_parameter_dataset(param, times, stok='_'):
         series[t] = v
 
     return dataset
-
