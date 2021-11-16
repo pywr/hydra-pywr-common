@@ -115,6 +115,12 @@ class PywrRollingVirtualStorageNode(PywrNode):
     def __init__(self, data):
         super().__init__(data)
 
+class PywrRollingAnnualVirtualStorageNode(PywrNode):
+    key = "rollingannualvirtualstorage"
+
+    def __init__(self, data):
+        super().__init__(data)
+
 
 class PywrReservoirNode(PywrNode):
     key = "reservoir"
