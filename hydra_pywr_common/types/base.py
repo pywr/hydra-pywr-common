@@ -90,8 +90,8 @@ class PywrNode(PywrEntity, HydraDataset):
         return isinstance(ref, (PywrParameter, PywrRecorder))
 
     @property
-    def pywr_node(self, inline_refs=False):
-        node = { "name": self.name}
+    def pywr_node(self, inline_refs = False):
+        node = {"name": self.name}
 
         if hasattr(self, "comment") and self.comment is not None:
             node.update({"comment": self.comment})
@@ -183,7 +183,7 @@ class PywrParameter(PywrEntity):
         attr = getattr(self, attr_name)
         value = attr.value
         dataset = { "name":  attr_name,
-                    "type":  attr.hydra_data_type,
+                    "type":  attr.key,
                     "value": json.dumps(value),
                     "metadata": "{}",
                     "unit": "-",
@@ -191,6 +191,16 @@ class PywrParameter(PywrEntity):
                   }
         return dataset
 
+    def as_dataset(self):
+        dataset = {
+            "name":  self.name,
+            "type":  self.hydra_data_type,
+            "value": json.dumps(self.value),
+            "metadata": "{}",
+            "unit": "-",
+            "hidden": 'N'
+        }
+        return dataset
 
 
 class PywrRecorder(PywrEntity):
@@ -217,12 +227,29 @@ class PywrRecorder(PywrEntity):
         except:
             return PywrRecorder.recorder_type_map["unknownrecorder"](*arg)
 
-
+    def as_dataset(self):
+        dataset = {
+            "name":  self.name,
+            "type":  self.hydra_data_type,
+            "value": json.dumps(self.value),
+            "metadata": "{}",
+            "unit": "-",
+            "hidden": 'N'
+        }
+        return dataset
 
 class PywrDataReference(PywrEntity, ABC):
 
     @staticmethod
     def ReferenceFactory(name, data):
+
+        #Check to see if the data is a json-object encoded as a string
+        if isinstance(data, str):
+            try:
+                data = json.loads(data)
+            except:
+                pass
+
         if isinstance(data, dict):
             if data.get("type"):
                 """ It looks like a Parameter, try to construct it as one... """

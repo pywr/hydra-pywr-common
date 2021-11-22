@@ -19,7 +19,14 @@ class PywrNetwork():
         self.edges = reader.edges
         self.parameters = reader.parameters
         self.recorders = reader.recorders
-
+        #This is the set of all parameters which should be written as
+        #network attributes, instead of on nodes. This is indentified by virtue
+        #of a parameter name not having the "__Node Name__:attr_name" format
+        self.node_defined_parameters = []
+        #This is the set of all recorders which should be written as
+        #network attributes, instead of on nodes. This is indentified by virtue
+        #of a parameter name not having the "__Node Name__:attr_name" format
+        self.node_defined_recorders = []
 
     @classmethod
     def from_source_file(cls, infile):
@@ -49,6 +56,15 @@ class PywrNetwork():
         for node in self.nodes.values():
             refs = node.unresolved_parameter_references
             for attrname, refinst in refs:
+                ##Check whether this attribute should go on the node or the network by
+                #checking the naming of the parameter to see if it confroms to the
+                #__node name__:attr_name format -- the 'reference key'
+                try:
+                    node_name, attr_name = parse_reference_key(refinst.value)
+                    self.node_defined_parameters.append(refinst.value)
+                except ValueError as e:
+                    continue
+
                 try:
                     param = self.parameters[refinst.name]
                     setattr(node, attrname, param)
@@ -71,6 +87,17 @@ class PywrNetwork():
         for node in self.nodes.values():
             refs = node.unresolved_parameter_references
             for attrname, refinst in refs:
+
+                ##Check whether this attribute should go on the node or the network by
+                #checking the naming of the parameter to see if it confroms to the
+                #__node name__:attr_name format -- the 'reference key'
+                try:
+                    node_name, attr_name = parse_reference_key(refinst.value)
+                    self.node_defined_recorders.append(refinst.value)
+                except ValueError as e:
+                    continue
+
+
                 try:
                     rec = self.recorders[refinst.name]
                     setattr(node, attrname, rec)

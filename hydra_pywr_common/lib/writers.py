@@ -1,6 +1,7 @@
 import json
 
-
+import logging
+log = logging.getLogger('hydra-pywr')
 """
     PywrNetwork => Pywr_json
 """
@@ -36,9 +37,10 @@ class PywrJsonWriter():
 
     def process_metadata(self):
         metadata = self.network.metadata
-        return { "title": metadata.title.value,
-                 "description": metadata.description.value
-               }
+        return {
+            "title": metadata.title.value,
+            "description": metadata.description.value
+        }
 
     def process_parameters(self):
         parameters = self.network.parameters
@@ -118,7 +120,10 @@ def make_hydra_attr(name, desc=None):
 
 
 class PywrHydraWriter():
-
+    """
+        THis takes an abstract pywr network and spits out a hydra network
+        hydra_pywr_common.types.network.PywrNetwork => hydra_network
+    """
     default_map_projection = None
 
     def __init__(self, network,
@@ -212,7 +217,6 @@ class PywrHydraWriter():
             self.network.resolve_backwards_recorder_references()
         except:
             pass
-        self.network.speculative_forward_references()
 
         self.template_attributes = self.collect_template_attributes()
         self.hydra_attributes = self.register_hydra_attributes()
@@ -254,7 +258,8 @@ class PywrHydraWriter():
 
     def add_network_to_hydra(self):
         """ Pass network to Hydra"""
-        self.hydra.add_network(self.hydra_network)
+        resp = self.hydra.add_network(self.hydra_network)
+        log.info("Network added with ID %s, scenario ID: %s", resp.id, resp.scenarios[0].id)
 
     def collect_template_attributes(self):
         template_attrs = {}
@@ -281,6 +286,14 @@ class PywrHydraWriter():
             for attr_name in table.intrinsic_attrs:
                 pending_attrs.add(f"tbl_{table_name}.{attr_name}")
 
+        for parameter_name in self.network.parameters:
+            if parameter_name not in self.network.node_defined_parameters:
+                pending_attrs.add(parameter_name)
+
+        for recorder_name in self.network.recorders:
+            if recorder_name not in self.network.node_defined_recorders:
+                pending_attrs.add(recorder_name)
+
         attrs = [ make_hydra_attr(attr_name) for attr_name in pending_attrs - excluded_attrs.union(set(self.template_attributes.keys())) ]
 
         return self.hydra.add_attributes(attrs)
@@ -298,8 +311,26 @@ class PywrHydraWriter():
         return resource_attribute, resource_scenario
 
 
+    def _is_global_parameter(self, param_name):
+        """
+            Check whether a parameter or recorder should be considered global
+            i.e. not related directly to a node in hydra.
+            Do this by checking first it is a parameter or recorder, then
+            checking whether it has already been identified as being related to
+            a node using the __node_name__:__attrname__ convention.
+        """
+        if (param_name in self.network.parameters or param_name in self.network.recorders) and \
+            (param_name not in self.network.node_defined_recorders and\
+             param_name not in self.network.node_defined_parameters):
+            return True
+        return False
+
     def make_resource_scenario(self, element, attr_name, local_attr_id, datatype=None):
-        dataset = element.attr_dataset(attr_name)
+
+        if self._is_global_parameter(attr_name):
+            dataset = element.as_dataset()
+        else:
+            dataset = element.attr_dataset(attr_name)
 
         resource_scenario = { "resource_attr_id": local_attr_id,
                               "dataset": dataset
@@ -368,6 +399,20 @@ class PywrHydraWriter():
                 ra, rs = self.make_resource_attr_and_scenario(table, f"tbl_{table_name}.{attr_name}")
                 hydra_network_attrs.append(ra)
                 resource_scenarios.append(rs)
+
+        for param_name, parameter in self.network.parameters.items():
+            if self._is_global_parameter(param_name) is False:
+                continue
+            ra, rs = self.make_resource_attr_and_scenario(parameter, param_name)
+            hydra_network_attrs.append(ra)
+            resource_scenarios.append(rs)
+
+        for recorder_name, recorder in self.network.recorders.items():
+            if self._is_global_parameter(param_name) is False:
+                continue
+            ra, rs = self.make_resource_attr_and_scenario(recorder, recorder_name)
+            hydra_network_attrs.append(ra)
+            resource_scenarios.append(rs)
 
         return hydra_network_attrs, resource_scenarios
 

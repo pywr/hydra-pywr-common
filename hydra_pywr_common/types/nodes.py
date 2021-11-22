@@ -147,6 +147,7 @@ class PywrCustomNode(PywrNode):
 
     def __init__(self, data):
         super().__init__(data)
+        self.key = data.get("type", PywrCustomNode.key)
         self.intrinsic_attrs = []
         self.parse_data(data)
 

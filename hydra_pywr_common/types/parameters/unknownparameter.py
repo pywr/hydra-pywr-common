@@ -7,6 +7,7 @@ class PywrUnknownParameter(PywrParameter, ArbitraryDirectAttrs):
 
     def __init__(self, name, data, **kwargs):
         super().__init__(name)
+        self.key = data.get("type", PywrUnknownParameter.key)
         self.add_attrs(data)
 
 

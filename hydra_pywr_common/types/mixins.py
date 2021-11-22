@@ -7,13 +7,14 @@ class HydraDataset():
         value = attr_inst.value
         if isinstance(value, (dict, list)):
             value = json.dumps(value)
-        dataset = { "name":  attr_name,
-                    "type":  attr_inst.hydra_data_type,
-                    "value": value,
-                    "metadata": "{}",
-                    "unit": "-",
-                    "hidden": 'N'
-                  }
+        dataset = {
+            "name":  attr_name,
+            "type":  attr_inst.hydra_data_type,
+            "value": value,
+            "metadata": "{}",
+            "unit": "-",
+            "hidden": 'N'
+        }
         return dataset
 
 
@@ -28,4 +29,4 @@ class ArbitraryDirectAttrs():
             self.intrinsics.add(attr)
 
     def get_attr_values(self):
-        return { attr: getattr(self, attr) for attr in self.intrinsics }
+        return {attr: getattr(self, attr) for attr in self.intrinsics}
