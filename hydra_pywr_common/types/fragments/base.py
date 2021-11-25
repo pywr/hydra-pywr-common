@@ -10,7 +10,7 @@ class Fragment():
         attr = getattr(self, local_attr)
         dataset = { "name":  attr_name,
                     "type":  attr.hydra_data_type,
-                    "value": attr.value,
+                    "value": attr.get_value(),
                     "metadata": "{}",
                     "unit": "-",
                     "hidden": 'N'
@@ -25,4 +25,4 @@ class Fragment():
 
 
     def get_values(self):
-        return { attr_name: getattr(self, attr_name).value for attr_name in self.intrinsic_attrs }
+        return { attr_name: getattr(self, attr_name).get_value() for attr_name in self.intrinsic_attrs }

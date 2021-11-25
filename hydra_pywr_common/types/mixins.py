@@ -4,7 +4,7 @@ class HydraDataset():
 
     def attr_dataset(self, attr_name):
         attr_inst = getattr(self, attr_name)
-        value = attr_inst.value
+        value = attr_inst.get_value()
         if isinstance(value, (dict, list)):
             value = json.dumps(value)
         dataset = {

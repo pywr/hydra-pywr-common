@@ -61,7 +61,7 @@ class PywrJsonReader():
         src_params = self.src.get("parameters")
         if src_params:
             for param in src_params.items():
-                p = PywrParameter.ParameterFactory(param)
+                p = PywrParameter(param[0], param[1])
                 parameters[p.name] = p
 
         return parameters

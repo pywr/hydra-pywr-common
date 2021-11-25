@@ -99,7 +99,7 @@ class PywrNode(PywrEntity, HydraDataset):
         if hasattr(self, "position") and self.position is not None and self.position.is_not_null:
             node.update({"position": self.position.value})
 
-        intrinsics = { name: attr.value for name, attr in self.__dict__.items() if name in self.intrinsic_attrs and not self._attr_is_p_or_r(name) }
+        intrinsics = { name: attr.get_value() for name, attr in self.__dict__.items() if name in self.intrinsic_attrs and not self._attr_is_p_or_r(name) }
         param_refs = {}
         for param_attr in self.parameters:
             node_name, attr_name = parse_reference_key(param_attr)
@@ -153,49 +153,32 @@ class PywrEdge(PywrEntity):
 
 
 class PywrParameter(PywrEntity):
-    parameter_type_map = {}
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        typekey = cls.key.lower()
-        #assert typekey.endswith("parameter")
-        PywrParameter.parameter_type_map[typekey] = cls
+    hydra_data_type = "PYWR_PARAMETER"
 
-    @staticmethod
-    def ParameterFactory(arg): # (name, data) from params.items()
-        instkey = arg[1]["type"].lower()
-        if not instkey.endswith("parameter"):
-            instkey += "parameter"
-        #instcls = PywrParameter.parameter_type_map[instkey]
-        instcls = PywrParameter.parameter_type_map.get(instkey)
-        if not instcls:
-            instcls = PywrParameter.parameter_type_map["unknownparameter"]
-
-        try:
-            return instcls(*arg)
-        except:
-            return PywrParameter.parameter_type_map["unknownparameter"](*arg)
-
-    def __init__(self, name):
+    def __init__(self, name, data):
         super().__init__()
         self.name = name
+        self.data = data
+
+    def get_value(self):
+        return self.data
 
     def attr_dataset(self, attr_name):
-        attr = getattr(self, attr_name)
-        value = attr.value
-        dataset = { "name":  attr_name,
-                    "type":  attr.key,
-                    "value": json.dumps(value),
-                    "metadata": "{}",
-                    "unit": "-",
-                    "hidden": 'N'
-                  }
+        dataset = {
+            "name":  attr_name,
+            "type":  self.hydra_data_type,
+            "value": json.dumps(self.data),
+            "metadata": "{}",
+            "unit": "-",
+            "hidden": 'N'
+          }
         return dataset
 
     def as_dataset(self):
         dataset = {
             "name":  self.name,
             "type":  self.hydra_data_type,
-            "value": json.dumps(self.value),
+            "value": json.dumps(self.data),
             "metadata": "{}",
             "unit": "-",
             "hidden": 'N'
@@ -254,7 +237,7 @@ class PywrDataReference(PywrEntity, ABC):
             if data.get("type"):
                 """ It looks like a Parameter, try to construct it as one... """
                 try:
-                    return PywrParameter.ParameterFactory((name, data)) # NB tuple
+                    return PywrParameter(name, data) # NB tuple
                 except KeyError:
                     """ ...no match as param. maybe recorder?... """
                     return PywrRecorder.RecorderFactory((name, data))
@@ -284,9 +267,8 @@ class PywrDataReference(PywrEntity, ABC):
     def __init__(self, name):
         self.name = name
 
-    @property
     @abstractmethod
-    def value(self):
+    def get_value(self):
         pass
 
 
@@ -296,8 +278,7 @@ class PywrDescriptorReference(PywrDataReference):
         super().__init__(name)
         self._value = data
 
-    @property
-    def value(self):
+    def get_value(self):
         return self._value
 
 class PywrArrayReference(PywrDataReference):
@@ -306,8 +287,7 @@ class PywrArrayReference(PywrDataReference):
         super().__init__(name)
         self._value = data
 
-    @property
-    def value(self):
+    def get_value(self):
         return self._value
 
 class PywrScalarReference(PywrDataReference):
@@ -316,8 +296,7 @@ class PywrScalarReference(PywrDataReference):
         super().__init__(name)
         self._value = data
 
-    @property
-    def value(self):
+    def get_value(self):
         return self._value
 
 class PywrDataframeReference(PywrDataReference):
@@ -326,8 +305,7 @@ class PywrDataframeReference(PywrDataReference):
         super().__init__(name)
         self._value = data
 
-    @property
-    def value(self):
+    def get_value(self):
         return self._value
 
 class PywrComponentReference(PywrDataReference):
@@ -335,8 +313,7 @@ class PywrComponentReference(PywrDataReference):
         super().__init__(name)
         self._value = name
 
-    @property
-    def value(self):
+    def get_value(self):
         return self._value
 
 class PywrRecorderReference(PywrDataReference):
@@ -344,6 +321,5 @@ class PywrRecorderReference(PywrDataReference):
         super().__init__(name)
         self._value = name
 
-    @property
-    def value(self):
+    def get_value(self):
         return self._value

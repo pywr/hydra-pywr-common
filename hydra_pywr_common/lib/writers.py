@@ -38,17 +38,17 @@ class PywrJsonWriter():
     def process_metadata(self):
         metadata = self.network.metadata
         return {
-            "title": metadata.title.value,
-            "description": metadata.description.value
+            "title": metadata.title.get_value(),
+            "description": metadata.description.get_value()
         }
 
     def process_parameters(self):
         parameters = self.network.parameters
-        return { ref: param.value for ref, param in parameters.items() }
+        return { ref: param.get_value() for ref, param in parameters.items() }
 
     def process_recorders(self):
         recorders = self.network.recorders
-        return { ref: rec.value for ref, rec in recorders.items() }
+        return { ref: rec.get_value() for ref, rec in recorders.items() }
 
     def process_nodes(self):
         nodes = self.network.nodes
@@ -163,7 +163,7 @@ class PywrHydraWriter():
             return self.template_attributes[attr_name]
 
         for attr in self.hydra_attributes:
-            if attr["name"] == attr_name:
+            if attr["name"].lower() == attr_name.lower():
                 return attr["id"]
 
     def get_next_node_id(self):
@@ -237,9 +237,9 @@ class PywrHydraWriter():
         baseline_scenario = self.make_baseline_scenario(self.resource_scenarios)
 
         """ Assemble complete network """
-        network_name = self.network.metadata.title.value
+        network_name = self.network.metadata.title.get_value()
         self.network_hydratype = self.get_hydra_network_type()
-        network_description = self.network.metadata.description.value
+        network_description = self.network.metadata.description.get_value()
 
         self.hydra_network = {
             "name": network_name,

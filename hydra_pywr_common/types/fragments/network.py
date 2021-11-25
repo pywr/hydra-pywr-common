@@ -55,6 +55,10 @@ class Table(Fragment):
     """ Override base get_values to force types """
     def get_values(self):
         values = super().get_values()
+        #TODO How can we make this more reliable?
+        if values.get('url') is not None:
+            return values
+
         for attr in ("index_col", "header"):
             if attr not in values:
                 continue
@@ -87,4 +91,3 @@ class Scenario(Fragment):
             typed_attr = PywrDataReference.ReferenceFactory(attrname, value)
             setattr(self, attrname, typed_attr)
             self.intrinsic_attrs.append(attrname)
-

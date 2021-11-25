@@ -24,11 +24,10 @@ class PywrDataframeParameter(PywrParameter, ArbitraryDirectAttrs):
     @property
     def value(self):
         if hasattr(self, "_value"):
-            return { "type": self.key,
+            return {
                      "data": { self.basekey: self._value}
                    }
         else:
             ret = self.get_attr_values()
-            ret.update({ "type": self.key })
             return ret
 

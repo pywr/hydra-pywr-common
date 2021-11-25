@@ -46,7 +46,7 @@ class PywrNetwork():
 
     @property
     def title(self):
-        return self.metadata.title.value
+        return self.metadata.title.get_value()
 
     def resolve_parameter_references(self):
         """  Arbitrary references on nodes are created as PywrDescriptorReference.
@@ -60,8 +60,8 @@ class PywrNetwork():
                 #checking the naming of the parameter to see if it confroms to the
                 #__node name__:attr_name format -- the 'reference key'
                 try:
-                    node_name, attr_name = parse_reference_key(refinst.value)
-                    self.node_defined_parameters.append(refinst.value)
+                    node_name, attr_name = parse_reference_key(refinst.get_value())
+                    self.node_defined_parameters.append(refinst.get_value())
                 except ValueError as e:
                     continue
 
@@ -92,8 +92,8 @@ class PywrNetwork():
                 #checking the naming of the parameter to see if it confroms to the
                 #__node name__:attr_name format -- the 'reference key'
                 try:
-                    node_name, attr_name = parse_reference_key(refinst.value)
-                    self.node_defined_recorders.append(refinst.value)
+                    node_name, attr_name = parse_reference_key(refinst.get_value())
+                    self.node_defined_recorders.append(refinst.get_value())
                 except ValueError as e:
                     continue
 

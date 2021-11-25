@@ -2,18 +2,12 @@ from hydra_pywr_common.types import PywrParameter
 from hydra_pywr_common.types.mixins import ArbitraryDirectAttrs
 
 class PywrUnknownParameter(PywrParameter, ArbitraryDirectAttrs):
-    key = "unknownparameter"
     hydra_data_type = "PYWR_PARAMETER"
+    _data = {}
 
     def __init__(self, name, data, **kwargs):
         super().__init__(name)
-        self.key = data.get("type", PywrUnknownParameter.key)
-        self.add_attrs(data)
+        self.data = data
 
-
-    @property
-    def value(self):
-        ret = self.get_attr_values()
-        ret.update( {"type": self.key} )
-        return ret
-
+    def get_value(self):
+        return self.data
