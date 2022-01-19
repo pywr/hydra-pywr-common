@@ -126,13 +126,17 @@ class PywrHydraWriter():
     """
     default_map_projection = None
 
-    def __init__(self, network,
-                       hydra = None,
-                       hostname=None,
-                       session_id=None,
-                       user_id=None,
-                       template_id=None,
-                       project_id=None):
+    def __init__(
+            self,
+            network,
+            hydra=None,
+            hostname=None,
+            session_id=None,
+            user_id=None,
+            template_id=None,
+            project_id=None,
+            network_name=None):
+
         self.hydra = hydra
         self.network = network
         self.hostname = hostname
@@ -140,6 +144,8 @@ class PywrHydraWriter():
         self.user_id = user_id
         self.template_id = template_id
         self.project_id = project_id
+        self.network_name = network_name
+        self.projection = None
 
         self._next_node_id = 0
         self._next_link_id = 0
@@ -203,8 +209,7 @@ class PywrHydraWriter():
         if projection:
             self.projection = projection
         else:
-            self.projection = self.network.metadata.projection.value if hasattr(self.network.metadata, "projection") else PywrHydraWriter.default_map_projection
-
+            self.projection = self.network.metadata.projection.get_value() if hasattr(self.network.metadata, "projection") else PywrHydraWriter.default_map_projection
         self.initialise_hydra_connection()
         """ Register Hydra attributes """
         self.network.resolve_parameter_references()
@@ -237,12 +242,13 @@ class PywrHydraWriter():
         baseline_scenario = self.make_baseline_scenario(self.resource_scenarios)
 
         """ Assemble complete network """
-        network_name = self.network.metadata.title.get_value()
+        if self.network_name is None:
+            self.network_name = self.network.metadata.title.get_value()
         self.network_hydratype = self.get_hydra_network_type()
         network_description = self.network.metadata.description.get_value()
 
         self.hydra_network = {
-            "name": network_name,
+            "name": self.network_name,
             "description": network_description,
             "project_id": self.project_id,
             "nodes": self.hydra_nodes,

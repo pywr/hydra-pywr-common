@@ -72,7 +72,7 @@ class PywrJsonReader():
         src_recorders = self.src.get("recorders")
         if src_recorders:
             for recorder in src_recorders.items():
-                r = PywrRecorder.RecorderFactory(recorder)
+                r = PywrRecorder(recorder[0], recorder[1])
                 recorders[r.name] = r
 
         return recorders

@@ -71,12 +71,12 @@ class PywrNetwork():
                     log.info(f"parameter attr to parameter: {node.name} => a: {attrname} ri.n: {refinst.name}")
                 except KeyError as e:
                     try:
-                        param = self.parameters[refinst.value]
+                        param = self.parameters[refinst.get_value()]
                         setattr(node, attrname, param)
-                        log.info(f"descriptor attr to parameter: {node.name} => a: {attrname} ri.v: {refinst.value}")
+                        log.info(f"descriptor attr to parameter: {node.name} => a: {attrname} ri.v: {refinst.get_value()}")
                     except KeyError as e:
                         pass    # Remains as descriptor reference
-                        log.info(f"plain descriptor: {node.name} => a: {attrname} ri.v: {refinst.value}")
+                        log.info(f"plain descriptor: {node.name} => a: {attrname} ri.v: {refinst.get_value()}")
 
 
     def resolve_recorder_references(self):

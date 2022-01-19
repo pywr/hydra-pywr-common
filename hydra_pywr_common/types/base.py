@@ -171,7 +171,7 @@ class PywrParameter(PywrEntity):
             "metadata": "{}",
             "unit": "-",
             "hidden": 'N'
-          }
+        }
         return dataset
 
     def as_dataset(self):
@@ -187,34 +187,23 @@ class PywrParameter(PywrEntity):
 
 
 class PywrRecorder(PywrEntity):
-    recorder_type_map = {}
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        PywrRecorder.recorder_type_map[cls.key] = cls
+    hydra_data_type = "PYWR_RECORDER"
 
-    def __init__(self, name):
+    recorder_type_map = {}
+
+    def get_value(self):
+        return self.data
+
+    def __init__(self, name, data):
         super().__init__()
         self.name = name
-
-    @staticmethod
-    def RecorderFactory(arg): # (name, data)
-        instkey = arg[1]["type"]
-        #instcls = PywrRecorder.recorder_type_map[instkey.lower()]
-        instcls = PywrRecorder.recorder_type_map.get(instkey.lower())
-
-        if not instcls:
-            instcls = PywrRecorder.recorder_type_map["unknownrecorder"]
-
-        try:
-            return instcls(*arg)
-        except:
-            return PywrRecorder.recorder_type_map["unknownrecorder"](*arg)
+        self.data = data
 
     def as_dataset(self):
         dataset = {
             "name":  self.name,
             "type":  self.hydra_data_type,
-            "value": json.dumps(self.value),
+            "value": json.dumps(self.data),
             "metadata": "{}",
             "unit": "-",
             "hidden": 'N'
@@ -236,11 +225,14 @@ class PywrDataReference(PywrEntity, ABC):
         if isinstance(data, dict):
             if data.get("type"):
                 """ It looks like a Parameter, try to construct it as one... """
+                if "recorder" in data['type'].lower():
+                    return PywrRecorder(name, data)
+
                 try:
                     return PywrParameter(name, data) # NB tuple
                 except KeyError:
                     """ ...no match as param. maybe recorder?... """
-                    return PywrRecorder.RecorderFactory((name, data))
+                    return PywrRecorder(name, data)
 
             """ ... it's just a dataframe."""
             return PywrDataframeReference(name, data)
