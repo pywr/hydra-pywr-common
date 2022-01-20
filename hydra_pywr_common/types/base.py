@@ -225,7 +225,7 @@ class PywrDataReference(PywrEntity, ABC):
         if isinstance(data, dict):
             if data.get("type"):
                 """ It looks like a Parameter, try to construct it as one... """
-                if "recorder" in data['type'].lower():
+                if data['type'].lower().endswith("recorder"):
                     return PywrRecorder(name, data)
 
                 try:
