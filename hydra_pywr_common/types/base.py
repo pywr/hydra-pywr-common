@@ -40,7 +40,7 @@ class PywrNode(PywrEntity, HydraDataset):
         self.position = PywrPosition(location) if location else None
         if "comment" in data:
             self.comment = data.get("comment")
-        self.intrinsic_attrs = []
+        self.intrinsic_attrs = data.get('intrinsic_attrs', [])
         self.parse_data(data)
 
     def __len__(self):
@@ -64,7 +64,6 @@ class PywrNode(PywrEntity, HydraDataset):
 
             typed_attr = PywrDataReference.ReferenceFactory(attrname, value)
             setattr(self, attrname, typed_attr)
-            self.intrinsic_attrs.append(attrname)
 
     @property
     def has_unresolved_parameter_reference(self):
@@ -103,7 +102,8 @@ class PywrNode(PywrEntity, HydraDataset):
         param_refs = {}
         for param_attr in self.parameters:
             node_name, attr_name = parse_reference_key(param_attr)
-            param_refs[attr_name] = param_attr
+            if attr_name in self.intrinsic_attrs:
+                intrinsics[attr_name] = param_attr
 
         recorder_refs = {}
         for rec_attr in self.recorders:
@@ -111,7 +111,6 @@ class PywrNode(PywrEntity, HydraDataset):
             recorder_refs[attr_name] = rec_attr
 
         node.update(intrinsics)
-        node.update(param_refs)
 
         return node
 
