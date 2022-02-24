@@ -41,6 +41,9 @@ class PywrNode(PywrEntity, HydraDataset):
         if "comment" in data:
             self.comment = data.get("comment")
         self.intrinsic_attrs = data.get('intrinsic_attrs', [])
+        if data.get('intrinsic_attrs') is not None:
+            del(data['intrinsic_attrs'])
+
         self.parse_data(data)
 
     def __len__(self):
