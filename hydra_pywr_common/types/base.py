@@ -27,12 +27,10 @@ class PywrEntity():
 
 
 class PywrNode(PywrEntity, HydraDataset):
-    node_type_map = {}
     base_attrs = ("name", "comment", "position")
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        PywrNode.node_type_map[cls.key] = cls
 
     def __init__(self, data, **kwargs):
         self.name = data["name"]
@@ -40,6 +38,7 @@ class PywrNode(PywrEntity, HydraDataset):
         self.position = PywrPosition(location) if location else None
         if "comment" in data:
             self.comment = data.get("comment")
+        self.node_type = data['type']
         self.intrinsic_attrs = data.get('intrinsic_attrs', [])
         if data.get('intrinsic_attrs') is not None:
             del(data['intrinsic_attrs'])
@@ -51,14 +50,7 @@ class PywrNode(PywrEntity, HydraDataset):
 
     @staticmethod
     def NodeFactory(data):
-        instkey = data["type"].lower()
-        instcls = PywrNode.node_type_map.get(instkey)
-        if instcls:
-            return instcls(data)
-
-        else:
-            instcls = PywrNode.node_type_map["__custom_node__"]
-            return instcls(data)
+        return PywrNode(data)
 
     def parse_data(self, data):
         for attrname, value in data.items():
@@ -93,7 +85,7 @@ class PywrNode(PywrEntity, HydraDataset):
 
     @property
     def pywr_node(self, inline_refs = False):
-        node = {"name": self.name}
+        node = {"name": self.name, "type": self.node_type}
 
         if hasattr(self, "comment") and self.comment is not None:
             node.update({"comment": self.comment})
