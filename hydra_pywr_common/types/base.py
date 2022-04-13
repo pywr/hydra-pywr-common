@@ -39,6 +39,7 @@ class PywrNode(PywrEntity, HydraDataset):
         if "comment" in data:
             self.comment = data.get("comment")
         self.node_type = data['type']
+
         self.intrinsic_attrs = data.get('intrinsic_attrs', [])
         if data.get('intrinsic_attrs') is not None:
             del(data['intrinsic_attrs'])
@@ -116,6 +117,7 @@ class PywrNode(PywrEntity, HydraDataset):
 
 class PywrEdge(PywrEntity):
     key = "edge"
+    link_type = "edge"
 
     def __init__(self, data):
         super().__init__()

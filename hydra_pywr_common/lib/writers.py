@@ -143,6 +143,9 @@ class PywrHydraWriter():
         self.session_id = session_id
         self.user_id = user_id
         self.template_id = template_id
+        self.type_name_map = {}
+        self.template = None
+
         self.project_id = project_id
         self.network_name = network_name
         self.projection = None
@@ -195,15 +198,17 @@ class PywrHydraWriter():
                  "resourcescenarios": resource_scenarios if resource_scenarios else []
                }
 
+    def get_template(self):
+        print(f"Retrieving template id '{self.template_id}'...")
+        self.template = self.hydra.get_template(self.template_id)
+
+        for tt in self.template.templatetypes:
+            self.type_name_map[tt.name] = tt
 
     def initialise_hydra_connection(self):
         if not self.hydra:
             from hydra_client.connection import JSONConnection
             self.hydra = JSONConnection(self.hostname, session_id=self.session_id, user_id=self.user_id)
-
-        print(f"Retrieving template id '{self.template_id}'...")
-        self.template = self.hydra.get_template(self.template_id)
-
 
     def build_hydra_network(self, projection=None, domain=None):
         if projection:
@@ -211,6 +216,9 @@ class PywrHydraWriter():
         else:
             self.projection = self.network.metadata.projection.get_value() if hasattr(self.network.metadata, "projection") else PywrHydraWriter.default_map_projection
         self.initialise_hydra_connection()
+
+        self.get_template()
+
         """ Register Hydra attributes """
         self.network.resolve_parameter_references()
         self.network.resolve_recorder_references()
@@ -355,7 +363,11 @@ class PywrHydraWriter():
             resource_attributes = []
 
             # TODO Move this to node ctor path???
-            for attr_name in filter(lambda a: a not in exclude_node_attrs, node.intrinsic_attrs):
+            node_type = node.node_type
+            node_type_attribute_names = [a.attr.name for a in self.type_name_map[node_type].typeattrs]
+            for attr_name in node_type_attribute_names:
+                if not hasattr(node, attr_name):
+                    continue
                 ra, rs = self.make_resource_attr_and_scenario(node, attr_name)
                 resource_attributes.append(ra)
                 resource_scenarios.append(rs)
@@ -368,8 +380,7 @@ class PywrHydraWriter():
                 hydra_node["description"] = node.comment
             hydra_node["layout"] = {}
             hydra_node["attributes"] = resource_attributes
-
-            hydra_node["types"] = [{ "id": self.get_typeid_by_name(node.key),
+            hydra_node["types"] = [{ "id": self.get_typeid_by_name(node.node_type),
                                      "child_template_id": self.template_id
                                   }]
 
@@ -414,7 +425,7 @@ class PywrHydraWriter():
             resource_scenarios.append(rs)
 
         for recorder_name, recorder in self.network.recorders.items():
-            if self._is_global_parameter(param_name) is False:
+            if self._is_global_parameter(recorder_name) is False:
                 continue
             ra, rs = self.make_resource_attr_and_scenario(recorder, recorder_name)
             hydra_network_attrs.append(ra)
@@ -477,7 +488,7 @@ class PywrHydraWriter():
             hydra_link["node_2_id"] = self.get_node_by_name(edge.dest)["id"]
             hydra_link["layout"] = {}
             hydra_link["resource_attributes"] = resource_attributes
-            hydra_link["types"] = [{ "id": self.get_typeid_by_name(edge.key) }]
+            hydra_link["types"] = [{ "id": self.get_typeid_by_name(edge.link_type) }]
 
             hydra_links.append(hydra_link)
 
