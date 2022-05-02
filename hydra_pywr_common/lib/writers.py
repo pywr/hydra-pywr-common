@@ -64,7 +64,10 @@ class PywrJsonWriter():
 
     def process_scenarios(self):
         scenarios = self.network.scenarios
-        return [ scenario.get_values() for scenario in scenarios ]
+        if len(scenarios) > 0 and hasattr(scenarios[0], 'get_values'):
+            return [ scenario.get_values() for scenario in scenarios ]
+        else:
+            return scenarios
 
 
 """
@@ -363,7 +366,7 @@ class PywrHydraWriter():
             resource_attributes = []
 
             # TODO Move this to node ctor path???
-            node_type = node.node_type
+            node_type = node.node_type.lower()
             node_type_attribute_names = [a.attr.name for a in self.type_name_map[node_type].typeattrs]
             for attr_name in node_type_attribute_names:
                 if not hasattr(node, attr_name):
