@@ -319,10 +319,11 @@ class PywrHydraWriter():
     def make_resource_attr_and_scenario(self, element, attr_name, datatype=None):
         local_attr_id = self.get_next_attr_id()
         resource_scenario = self.make_resource_scenario(element, attr_name, local_attr_id, datatype)
-        resource_attribute = { "id": local_attr_id,
-                               "attr_id": self.get_hydra_attrid_by_name(attr_name),
-                               "attr_is_var": "N"
-                             }
+        resource_attribute = {
+            "id": local_attr_id,
+            "attr_id": self.get_hydra_attrid_by_name(attr_name),
+            "attr_is_var": "N"
+        }
 
 
         return resource_attribute, resource_scenario
@@ -336,7 +337,7 @@ class PywrHydraWriter():
             checking whether it has already been identified as being related to
             a node using the __node_name__:__attrname__ convention.
         """
-        if (param_name in self.network.parameters or param_name in self.network.recorders) and \
+        if (param_name in self.network.scenarios or param_name in self.network.parameters or param_name in self.network.recorders) and \
             (param_name not in self.network.node_defined_recorders and\
              param_name not in self.network.node_defined_parameters):
             return True
@@ -349,9 +350,10 @@ class PywrHydraWriter():
         else:
             dataset = element.attr_dataset(attr_name)
 
-        resource_scenario = { "resource_attr_id": local_attr_id,
-                              "dataset": dataset
-                            }
+        resource_scenario = {
+            "resource_attr_id": local_attr_id,
+            "dataset": dataset
+        }
 
         return resource_scenario
 
@@ -434,18 +436,45 @@ class PywrHydraWriter():
             hydra_network_attrs.append(ra)
             resource_scenarios.append(rs)
 
+        """
+        Special case for pywr scenarios
+        """
+        scenario_attr = make_hydra_attr(attr_name)
+        scenario_val = {'scenarios':[scenario.get_values() for scenario in self.network.scenarios.values()]}
+        scenario_dataset = {
+            "name":  'scenarios',
+            "type":  "PYWR_SCENARIOS",
+            "value": json.dumps(scenario_val),
+            "metadata": "{}",
+            "unit": "-",
+            "hidden": 'N'
+        }
+        scenarios_attr_id = self.get_next_attr_id()
+        resource_attribute = {
+            "id": scenarios_attr_id,
+            "attr_id": self.get_hydra_attrid_by_name('scenarios'),
+            "attr_is_var": "N"
+        }
+
+        resource_scenario = {
+            "resource_attr_id": scenarios_attr_id,
+            "dataset": scenario_dataset
+        }
+        resource_scenarios.append(resource_scenario)
+        hydra_network_attrs.append(resource_attribute)
+
+
         return hydra_network_attrs, resource_scenarios
 
     def build_network_descriptor_attributes(self, attr_key):
-
         attr_name = f"{attr_key}_data"
         attrs = [ make_hydra_attr(attr_name) ]
         self.hydra_attributes += self.hydra.add_attributes(attrs)
 
         timestepper = self.network.timestepper.get_values()
         metadata = self.network.metadata.get_values()
-        tables = [ table.get_values() for table in self.network.tables.values() ]
-        scenarios = [ scenario.get_values() for scenario in self.network.scenarios.values() ]
+        tables = [table.get_values() for table in self.network.tables.values()]
+        scenarios = [scenario.get_values() for scenario in self.network.scenarios.values()]
 
         attr_data = {"timestepper": timestepper,
                      "metadata": metadata
@@ -455,23 +484,26 @@ class PywrHydraWriter():
         if scenarios:
             attr_data["scenarios"] = scenarios
 
-        dataset = { "name":  attr_name,
-                    "type":  "DESCRIPTOR",
-                    "value": json.dumps(attr_data),
-                    "metadata": "{}",
-                    "unit": "-",
-                    "hidden": 'N'
-                  }
+        dataset = {
+            "name":  attr_name,
+            "type":  "DESCRIPTOR",
+            "value": json.dumps(attr_data),
+            "metadata": "{}",
+            "unit": "-",
+            "hidden": 'N'
+          }
 
         local_attr_id = self.get_next_attr_id()
-        resource_attribute = { "id": local_attr_id,
-                               "attr_id": self.get_hydra_attrid_by_name(attr_name),
-                               "attr_is_var": "N"
-                             }
+        resource_attribute = {
+            "id": local_attr_id,
+            "attr_id": self.get_hydra_attrid_by_name(attr_name),
+            "attr_is_var": "N"
+        }
 
-        resource_scenario = { "resource_attr_id": local_attr_id,
-                              "dataset": dataset
-                            }
+        resource_scenario = {
+            "resource_attr_id": local_attr_id,
+            "dataset": dataset
+        }
 
         return [resource_attribute], [resource_scenario]
 
@@ -605,23 +637,26 @@ class PywrHydraIntegratedWriter():
 
         attr_data = {"config": config}
 
-        dataset = { "name":  attr_name,
-                    "type":  "DESCRIPTOR",
-                    "value": json.dumps(attr_data),
-                    "metadata": "{}",
-                    "unit": "-",
-                    "hidden": 'N'
-                  }
+        dataset = {
+            "name":  attr_name,
+            "type":  "DESCRIPTOR",
+            "value": json.dumps(attr_data),
+            "metadata": "{}",
+            "unit": "-",
+            "hidden": 'N'
+        }
 
         local_attr_id = self.energy_writer.get_next_attr_id()
-        resource_attribute = { "id": local_attr_id,
-                               "attr_id": self.energy_writer.get_hydra_attrid_by_name(attr_name),
-                               "attr_is_var": "N"
-                             }
+        resource_attribute = {
+            "id": local_attr_id,
+            "attr_id": self.energy_writer.get_hydra_attrid_by_name(attr_name),
+            "attr_is_var": "N"
+        }
 
-        resource_scenario = { "resource_attr_id": local_attr_id,
-                              "dataset": dataset
-                            }
+        resource_scenario = {
+            "resource_attr_id": local_attr_id,
+            "dataset": dataset
+        }
 
         return [resource_attribute], [resource_scenario]
 
