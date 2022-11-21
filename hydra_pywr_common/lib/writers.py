@@ -20,7 +20,7 @@ class PywrJsonWriter():
         output["nodes"] = self.process_nodes()
         output["edges"] = self.process_edges()
         if self.network.tables:
-            output["tables"] = self.process_tables()
+            output["tables"] = self.network.tables
         if self.network.scenarios:
             output["scenarios"] = self.process_scenarios()
 
@@ -57,10 +57,6 @@ class PywrJsonWriter():
     def process_edges(self):
         edges = self.network.edges
         return [ edge.value for edge in edges.values() ]
-
-    def process_tables(self):
-        tables = self.network.tables
-        return { table_name: table.get_values() for table_name, table in tables.items() }
 
     def process_scenarios(self):
         scenarios = self.network.scenarios
@@ -300,8 +296,7 @@ class PywrHydraWriter():
             pending_attrs.add(f"metadata.{meta_attr}")
 
         for table_name, table in self.network.tables.items():
-            for attr_name in table.intrinsic_attrs:
-                pending_attrs.add(f"tbl_{table_name}.{attr_name}")
+            pending_attrs.add(table_name)
 
         for parameter_name in self.network.parameters:
             if parameter_name not in self.network.node_defined_parameters:
@@ -417,10 +412,12 @@ class PywrHydraWriter():
             resource_scenarios.append(rs)
 
         for table_name, table in self.network.tables.items():
-            for attr_name in table.intrinsic_attrs:
-                ra, rs = self.make_resource_attr_and_scenario(table, f"tbl_{table_name}.{attr_name}")
-                hydra_network_attrs.append(ra)
-                resource_scenarios.append(rs)
+            if self._is_global_parameter(table_name) is False:
+                continue
+
+            ra, rs = self.make_resource_attr_and_scenario(table, table_name)
+            hydra_network_attrs.append(ra)
+            resource_scenarios.append(rs)
 
         for param_name, parameter in self.network.parameters.items():
             if self._is_global_parameter(param_name) is False:
@@ -462,7 +459,6 @@ class PywrHydraWriter():
         }
         resource_scenarios.append(resource_scenario)
         hydra_network_attrs.append(resource_attribute)
-
 
         return hydra_network_attrs, resource_scenarios
 

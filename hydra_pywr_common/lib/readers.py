@@ -4,13 +4,13 @@ from hydra_pywr_common.types.base import(
     PywrNode,
     PywrParameter,
     PywrRecorder,
-    PywrEdge
+    PywrEdge,
+    PywrTable
 )
 
 from hydra_pywr_common.types.fragments.network import(
     Timestepper,
     Metadata,
-    Table,
     Scenario
 )
 
@@ -82,7 +82,7 @@ class PywrJsonReader():
         src_tables = self.src.get("tables")
         if src_tables:
             for name, table in src_tables.items():
-                t = Table(table)
+                t = PywrTable(name, table)
                 tables[name] = t
 
         return tables

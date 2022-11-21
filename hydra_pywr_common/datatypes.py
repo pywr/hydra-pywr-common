@@ -10,6 +10,10 @@ class PywrScenarios(PywrDataType):
     name = 'Pywr Scenarios'
 
 
+class PywrTable(PywrDataType):
+    tag = 'PYWR_TABLE'
+    name = 'Pywr Table'
+
 class PywrScenarioCombinations(PywrDataType):
     tag = 'PYWR_SCENARIO_COMBINATIONS'
     name = 'Pywr Scenario combinations'

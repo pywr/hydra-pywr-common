@@ -194,6 +194,34 @@ class PywrRecorder(PywrEntity):
         self.name = name
         self.data = data
 
+    def attr_dataset(self, attr_name):
+        return self.as_dataset(attr_name)
+
+    def as_dataset(self, attr_name=None):
+        dataset = {
+            "name":  self.name if attr_name is None else attr_name,
+            "type":  self.hydra_data_type,
+            "value": json.dumps(self.data),
+            "metadata": "{}",
+            "unit": "-",
+            "hidden": 'N'
+        }
+        return dataset
+
+
+class PywrTable(PywrEntity):
+    hydra_data_type = "PYWR_TABLE"
+
+    recorder_type_map = {}
+
+    def get_value(self):
+        return self.data
+
+    def __init__(self, name, data):
+        super().__init__()
+        self.name = name
+        self.data = data
+
     def as_dataset(self):
         dataset = {
             "name":  self.name,
@@ -304,6 +332,14 @@ class PywrComponentReference(PywrDataReference):
         return self._value
 
 class PywrRecorderReference(PywrDataReference):
+    def __init__(self, name):
+        super().__init__(name)
+        self._value = name
+
+    def get_value(self):
+        return self._value
+
+class PywrTableReference(PywrDataReference):
     def __init__(self, name):
         super().__init__(name)
         self._value = name
