@@ -332,7 +332,7 @@ class PywrHydraWriter():
             checking whether it has already been identified as being related to
             a node using the __node_name__:__attrname__ convention.
         """
-        if (param_name in self.network.scenarios or param_name in self.network.parameters or param_name in self.network.recorders) and \
+        if (param_name in self.network.scenarios or param_name in self.network.parameters or param_name in self.network.recorders or param_name in self.network.tables) and \
             (param_name not in self.network.node_defined_recorders and\
              param_name not in self.network.node_defined_parameters):
             return True
