@@ -338,11 +338,3 @@ class PywrRecorderReference(PywrDataReference):
 
     def get_value(self):
         return self._value
-
-class PywrTableReference(PywrDataReference):
-    def __init__(self, name):
-        super().__init__(name)
-        self._value = name
-
-    def get_value(self):
-        return self._value
