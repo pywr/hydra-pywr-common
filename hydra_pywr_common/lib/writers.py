@@ -284,7 +284,7 @@ class PywrHydraWriter():
         return template_attrs
 
     def register_hydra_attributes(self):
-        timestepper_attrs = { 'timestepper.start', 'timestepper.end', 'timestepper.timestep'}
+        timestepper_attrs = { 'timestepper.start', 'timestepper.end', 'timestepper.timestep', 'scenarios'}
         excluded_attrs = { 'position', 'intrinsic_attrs', 'type' }
         pending_attrs = timestepper_attrs
 
