@@ -112,11 +112,6 @@ class PywrIntegratedJsonWriter():
 """
     PywrNetwork => hydra_network
 """
-def make_hydra_attr(name, desc=None):
-    return { "name": name,
-             "description": desc if desc else name
-           }
-
 
 class PywrHydraWriter():
     """
@@ -153,6 +148,12 @@ class PywrHydraWriter():
         self._next_link_id = 0
         self._next_attr_id = 0
 
+
+    def make_hydra_attr(self, name, desc=None):
+        return { "name": name,
+             "description": desc if desc else name,
+            'project_id': self.project_id
+           }
 
     def get_typeid_by_name(self, name):
         for t in self.template["templatetypes"]:
@@ -306,7 +307,7 @@ class PywrHydraWriter():
             if recorder_name not in self.network.node_defined_recorders:
                 pending_attrs.add(recorder_name)
 
-        attrs = [ make_hydra_attr(attr_name) for attr_name in pending_attrs - excluded_attrs.union(set(self.template_attributes.keys())) ]
+        attrs = [ self.make_hydra_attr(attr_name) for attr_name in pending_attrs - excluded_attrs.union(set(self.template_attributes.keys())) ]
 
         return self.hydra.add_attributes(attrs)
 
@@ -436,7 +437,7 @@ class PywrHydraWriter():
         """
         Special case for pywr scenarios
         """
-        scenario_attr = make_hydra_attr(attr_name)
+        scenario_attr = self.make_hydra_attr(attr_name)
         scenario_val = {'scenarios':[scenario.get_values() for scenario in self.network.scenarios.values()]}
         scenario_dataset = {
             "name":  'scenarios',
@@ -464,7 +465,7 @@ class PywrHydraWriter():
 
     def build_network_descriptor_attributes(self, attr_key):
         attr_name = f"{attr_key}_data"
-        attrs = [ make_hydra_attr(attr_name) ]
+        attrs = [ self.make_hydra_attr(attr_name) ]
         self.hydra_attributes += self.hydra.add_attributes(attrs)
 
         timestepper = self.network.timestepper.get_values()
@@ -554,6 +555,12 @@ class PywrHydraIntegratedWriter():
 
         return types
 
+    def make_hydra_attr(self, name, desc=None):
+        return { "name": name,
+             "description": desc if desc else name,
+            'project_id': self.project_id
+           }
+
     def initialise_hydra_connection(self):
         from hydra_client.connection import JSONConnection
         self.hydra = JSONConnection(self.hostname, session_id=self.session_id, user_id=self.user_id)
@@ -626,7 +633,7 @@ class PywrHydraIntegratedWriter():
     def build_network_config_attribute(self, attr_name="config"):
         """ Delegate hydra ops to energy writer for connection and attr_ids """
 
-        attrs = [ make_hydra_attr(attr_name) ]
+        attrs = [ self.make_hydra_attr(attr_name) ]
         self.energy_writer.hydra_attributes += self.energy_writer.hydra.add_attributes(attrs)
 
         config = self.pin.config.get_values()
@@ -736,7 +743,7 @@ class IntegratedOutputWriter():
 
 
     def add_node_attributes(self, node_datasets, output_attr="simulated_flow"):
-        sf_attr = make_hydra_attr(output_attr)
+        sf_attr = self.make_hydra_attr(output_attr)
         hydra_attrs = self.hydra.add_attributes([sf_attr])
         sf_hydra_attr = hydra_attrs[0]
 
