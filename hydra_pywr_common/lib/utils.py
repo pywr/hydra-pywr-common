@@ -8,8 +8,13 @@ import re
   Enforces canonical name format on references.
 """
 def parse_reference_key(key, strtok=':'):
-    name, attr = key.split(strtok)
-    name_pattern = r"^__[a-zA-Z0-9_ \.\-\(\)\/]+__$"
+    try:
+        splitkey = key.rsplit(strtok, 1)
+        name = splitkey[0]
+        attr = splitkey[0]
+    except ValueError:
+        raise Exception(f"An error occurred parsing reference name {key}. Too many ':'")
+    name_pattern = r"^__[a-zA-Z0-9_ \:\.\-\(\)\/]+__$"
     if not re.search(name_pattern, name):
         raise ValueError(f"Invalid reference {name}")
 
