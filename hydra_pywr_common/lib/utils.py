@@ -11,7 +11,7 @@ def parse_reference_key(key, strtok=':'):
     try:
         splitkey = key.rsplit(strtok, 1)
         name = splitkey[0]
-        attr = splitkey[0]
+        attr = splitkey[1]
     except ValueError:
         raise Exception(f"An error occurred parsing reference name {key}. Too many ':'")
     name_pattern = r"^__[a-zA-Z0-9_ \:\.\-\(\)\/]+__$"
