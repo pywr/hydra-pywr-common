@@ -62,7 +62,7 @@ class PywrNetwork():
                 try:
                     node_name, attr_name = parse_reference_key(refinst.get_value())
                     self.node_defined_parameters.append(refinst.get_value())
-                except ValueError as e:
+                except (ValueError, IndexError) as e:
                     continue
 
                 try:
@@ -94,7 +94,7 @@ class PywrNetwork():
                 try:
                     node_name, attr_name = parse_reference_key(refinst.get_value())
                     self.node_defined_recorders.append(refinst.get_value())
-                except ValueError as e:
+                except (ValueError, IndexError) as e:
                     continue
 
 
