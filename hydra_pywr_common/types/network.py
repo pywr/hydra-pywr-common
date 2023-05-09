@@ -15,6 +15,7 @@ class PywrNetwork():
         self.timestepper = reader.timestepper
         self.tables = reader.tables
         self.scenarios = reader.scenarios
+        self.scenario_combinations = reader.scenario_combinations
         self.nodes = reader.nodes
         self.edges = reader.edges
         self.parameters = reader.parameters

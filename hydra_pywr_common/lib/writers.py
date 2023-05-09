@@ -24,6 +24,9 @@ class PywrJsonWriter():
         if self.network.scenarios:
             output["scenarios"] = self.process_scenarios()
 
+        if self.network.scenario_combinations:
+            output["scenario_combinations"] = self.network.scenario_combinations
+
         return output
 
     def as_json(self, **json_opts):
