@@ -32,6 +32,7 @@ class PywrJsonReader():
         self.metadata = Metadata(self.src["metadata"])
         self.tables = self.build_tables()
         self.scenarios = self.build_scenarios()
+        self.scenario_combinations = self.build_scenario_combinations()
 
         self.parameters = self.build_parameters()
         self.recorders = self.build_recorders()
@@ -96,7 +97,8 @@ class PywrJsonReader():
 
         return scenarios
 
-
+    def build_scenario_combinations(self):
+        return self.src.get("scenario_combinations", None)
 
 class PywrHydraReader():
     def __init__(self, hydra_net):
