@@ -14,6 +14,10 @@ class PywrTable(PywrDataType):
     tag = 'PYWR_TABLE'
     name = 'Pywr Table'
 
+class PywrTimestepper(PywrRecorder):
+    tag = 'PYWR_TIMESTEPPER'
+    name = 'Pywr Timestepper'
+
 class PywrScenarioCombinations(PywrDataType):
     tag = 'PYWR_SCENARIO_COMBINATIONS'
     name = 'Pywr Scenario combinations'
@@ -125,3 +129,5 @@ class PywrFlowDurationCurveDeviationRecorder(PywrRecorder):
     tag = 'PYWR_RECORDER_FDC_DEVIATION'
     name = 'Pywr Recorder FDC Deviation'
     component = 'flowdurationcurvedeviationrecorder'
+
+
