@@ -14,7 +14,7 @@ class PywrTable(PywrDataType):
     tag = 'PYWR_TABLE'
     name = 'Pywr Table'
 
-class PywrTimestepper(PywrRecorder):
+class PywrTimestepper(PywrDataType):
     tag = 'PYWR_TIMESTEPPER'
     name = 'Pywr Timestepper'
 
