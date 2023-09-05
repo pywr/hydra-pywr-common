@@ -18,6 +18,10 @@ class PywrTimestepper(PywrDataType):
     tag = 'PYWR_TIMESTEPPER'
     name = 'Pywr Timestepper'
 
+class PywrMetadata(PywrDataType):
+    tag = 'PYWR_METADATA'
+    name = 'Pywr Metadata'
+
 class PywrScenarioCombinations(PywrDataType):
     tag = 'PYWR_SCENARIO_COMBINATIONS'
     name = 'Pywr Scenario combinations'
